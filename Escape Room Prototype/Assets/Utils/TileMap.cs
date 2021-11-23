@@ -12,12 +12,12 @@ namespace CaptainCoder.TileBuilder
         static TileMap() {
             NEIGHBOR_INFO[TileSide.West]  = (-1,  0, TileSide.East);
             NEIGHBOR_INFO[TileSide.East]  = ( 1,  0, TileSide.West);
-            NEIGHBOR_INFO[TileSide.South] = ( 0, -1, TileSide.South);
-            NEIGHBOR_INFO[TileSide.North] = ( 0,  1, TileSide.North);
+            NEIGHBOR_INFO[TileSide.South] = ( 0, -1, TileSide.North);
+            NEIGHBOR_INFO[TileSide.North] = ( 0,  1, TileSide.South);
 
         }
 
-        private readonly Dictionary<(int, int), T> tiles = new Dictionary<(int, int), T>();
+        private readonly Dictionary<(int, int), ITile> tiles = new Dictionary<(int, int), ITile>();
         private readonly Func<ITile, T> TileFactory;
 
         public TileMap(Func<ITile, T> TileFactory)
@@ -25,14 +25,24 @@ namespace CaptainCoder.TileBuilder
             this.TileFactory = TileFactory;
         }
 
+        public IEnumerable<(int, int)> GetAllPos()
+        {
+            return this.tiles.Keys;
+        }
+
         public bool HasTile((int x, int y) pos)
         {
             return this.tiles.ContainsKey(pos);
         }
 
-        public T InitTileAt((int x, int y) pos)
+        public T ConstructTile((int x, int y) pos)
         {
-            if (this.tiles.TryGetValue(pos, out T tile))
+            return this.TileFactory(this.GetTile(pos));
+        }
+
+        public ITile InitTileAt((int x, int y) pos)
+        {
+            if (this.tiles.TryGetValue(pos, out ITile tile))
             {
                 return tile;
             }
@@ -40,7 +50,7 @@ namespace CaptainCoder.TileBuilder
             ITile newTile = new BasicTile();
 
             // If neighbors exist on any side, copy the wall configuration.
-            foreach(TileSide mySide in TileUtils.ALL)
+            foreach(TileSide mySide in TileUtils.WALLS) 
             {
                 (int offX, int offY, TileSide neighborSide) = NEIGHBOR_INFO[mySide];
                 if (this.HasTile((pos.x + offX, pos.y + offY)))
@@ -48,14 +58,13 @@ namespace CaptainCoder.TileBuilder
                     newTile.SetSide(mySide, this.GetTile((pos.x + offX, pos.y + offY)).HasSide(neighborSide));
                 }
             }
-
-            tile = this.TileFactory(newTile);
-            return tile;
+            this.tiles[pos] = newTile;
+            return newTile;
         }
 
-        public T GetTile((int x, int y) pos)
+        public ITile GetTile((int x, int y) pos)
         {
-            this.tiles.TryGetValue(pos, out T tile);
+            this.tiles.TryGetValue(pos, out ITile tile);
             return tile;
         }
 
