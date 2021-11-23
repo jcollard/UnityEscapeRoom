@@ -9,25 +9,19 @@ public class TileMapController : MonoBehaviour
 
     public TileController TileTemplate;
     public Transform Container;
-    public TileMap<TileController> map;
-    public TileMapController()
+
+    [SerializeField]
+    private TileMap _Map;
+    public TileMap Map
     {
-        this.map = new TileMap<TileController>(this.CreateTile);
-        this.map.InitTileAt((0, 0));
-        this.map.InitTileAt((1, 0));
-        this.map.InitTileAt((2, 0));
-        this.map.InitTileAt((0, 1));
-        this.map.InitTileAt((1, 1));
-        this.map.InitTileAt((2, 1));
-        this.map.RemoveWall((0, 0), TileSide.North);
-        this.map.RemoveWall((0, 0), TileSide.East);
-        this.map.RemoveWall((1, 0), TileSide.North);
-        this.map.RemoveWall((1, 0), TileSide.East);
-        this.map.RemoveWall((2, 0), TileSide.North);
-        this.map.RemoveWall((0, 1), TileSide.East);
-        this.map.RemoveWall((1, 1), TileSide.East);
-
-
+        get
+        {
+            if (this._Map == null)
+            {
+                this._Map = new TileMap();
+            }
+            return this._Map;
+        }
     }
 
     private TileController CreateTile(ITile tile)
@@ -44,9 +38,9 @@ public class TileMapController : MonoBehaviour
     {
         Collard.UnityUtils.DestroyImmediateChildren(this.Container);
         TileTemplate.gameObject.SetActive(false);
-        foreach ((int x, int y) pos in this.map.GetAllPos())
+        foreach ((int x, int y) pos in this.Map.GetAllPos())
         {
-            TileController tile = this.map.ConstructTile(pos);
+            TileController tile = this.CreateTile(this.Map.GetTile(pos));
             tile.gameObject.SetActive(true);
             tile.name = $"(x: {pos.x}, y: {pos.y})";
             tile.transform.parent = this.Container;

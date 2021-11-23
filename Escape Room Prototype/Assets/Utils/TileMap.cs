@@ -3,10 +3,9 @@ namespace CaptainCoder.TileBuilder
     using System.Collections.Generic;
     using System;
 
-    public class TileMap<T> where T : ITile
+    [Serializable]
+    public class TileMap
     {
-
-
         private static readonly Dictionary<TileSide, (int, int, TileSide)> NEIGHBOR_INFO = new Dictionary<TileSide, (int, int, TileSide)>();
 
         static TileMap() {
@@ -18,12 +17,6 @@ namespace CaptainCoder.TileBuilder
         }
 
         private readonly Dictionary<(int, int), ITile> tiles = new Dictionary<(int, int), ITile>();
-        private readonly Func<ITile, T> TileFactory;
-
-        public TileMap(Func<ITile, T> TileFactory)
-        {
-            this.TileFactory = TileFactory;
-        }
 
         public IEnumerable<(int, int)> GetAllPos()
         {
@@ -33,11 +26,6 @@ namespace CaptainCoder.TileBuilder
         public bool HasTile((int x, int y) pos)
         {
             return this.tiles.ContainsKey(pos);
-        }
-
-        public T ConstructTile((int x, int y) pos)
-        {
-            return this.TileFactory(this.GetTile(pos));
         }
 
         public ITile InitTileAt((int x, int y) pos)
@@ -68,13 +56,13 @@ namespace CaptainCoder.TileBuilder
             return tile;
         }
 
-        public TileMap<T> RemoveTile((int x, int y) pos)
+        public TileMap RemoveTile((int x, int y) pos)
         {
             this.tiles.Remove(pos);
             return this;
         }
 
-        public TileMap<T> SetWall((int x, int y) pos, TileSide side, bool isWall)
+        public TileMap SetWall((int x, int y) pos, TileSide side, bool isWall)
         {
             if (!this.HasTile(pos))
             {
@@ -94,14 +82,23 @@ namespace CaptainCoder.TileBuilder
             return this;
         }
 
-        public TileMap<T> AddWall((int x, int y) pos, TileSide side)
+        public TileMap AddWall((int x, int y) pos, TileSide side)
         {
             return this.SetWall(pos, side, true);
         }
 
-        public TileMap<T> RemoveWall((int x, int y) pos, TileSide side)
+        public TileMap RemoveWall((int x, int y) pos, TileSide side)
         {
             return this.SetWall(pos, side, false);
+        }
+
+        public TileMap ToggleWall((int x, int y) pos, TileSide side)
+        {
+            if (this.HasTile(pos)) 
+            {
+                return this.SetWall(pos, side, !this.GetTile(pos).HasSide(side));
+            }
+            return this;
         }
     }
 
@@ -111,6 +108,7 @@ namespace CaptainCoder.TileBuilder
         void SetSide(TileSide side, bool isWall);
     }
 
+    [Serializable]
     internal class BasicTile : ITile
     {
         private readonly Dictionary<TileSide, bool> IsWall = new Dictionary<TileSide, bool>();

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
+    public TileMapController TileMapController;
+    
     [SerializeField]
     private int _X;
     

@@ -14,6 +14,8 @@ public class PlayerControllerEditor : Editor
 
         PlayerController playerController = (PlayerController)target;
         
+        playerController.TileMapController = (TileMapController)EditorGUILayout.ObjectField("Tile Map Controller", playerController.TileMapController, typeof(TileMapController), true);
+
         playerController.Facing = (TileSide)EditorGUILayout.EnumPopup("Facing", playerController.Facing);
         
         Vector2Int pos = EditorGUILayout.Vector2IntField("Position", new Vector2Int(playerController.Position.x, playerController.Position.y));
@@ -58,11 +60,29 @@ public class PlayerControllerEditor : Editor
         }
         GUILayout.EndHorizontal();
 
+        if (GUILayout.Button("Wall"))
+        {
+            playerController.TileMapController.Map.ToggleWall(playerController.Position, playerController.Facing);
+            // TODO (jcollard 11/23/2021): We probably shouldn't rebuild the entire map.
+            // It would be useful to have BuildTiles take in a range to rebuild. 
+            // This requires caching the locations of each TileController so we can either
+            // just delete those OR update them directly.
+            playerController.TileMapController.BuildTiles();
+        }
 
-        
-        
-        // tileGrid.Factory = (TileFactory)EditorGUILayout.ObjectField("Tile Factory", tileGrid.Factory, typeof(TileFactory), true);
+        if (GUILayout.Button("Init Tile")) 
+        {
+            playerController.TileMapController.Map.InitTileAt(playerController.Position);
+            // TODO (jcollard 11/23/2021): Don't rebuild entire map
+            playerController.TileMapController.BuildTiles();
+        }
 
+        if (GUILayout.Button("Remove Tile"))
+        {
+            playerController.TileMapController.Map.RemoveTile(playerController.Position);
+            // TODO (jcollard 11/23/2021): Don't rebuild entire map
+            playerController.TileMapController.BuildTiles();
+        }
 
         if (EditorGUI.EndChangeCheck())
         {
