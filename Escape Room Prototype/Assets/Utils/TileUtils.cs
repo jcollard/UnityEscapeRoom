@@ -19,6 +19,5 @@ namespace CaptainCoder.TileBuilder
             LABEL[TileSide.Top] = "Top";
             LABEL[TileSide.Bottom] = "Bottom";
         }
-
     }
 }
