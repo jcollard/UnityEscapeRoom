@@ -9,7 +9,41 @@ public class TileMapController : MonoBehaviour
 
     public TileController TileTemplate;
     public Transform Container;
+
+    [SerializeField]
+    private Material _WallTexture;
+    public Material WallTexture
+    {
+        get => _WallTexture;
+        set => this.UpdateIfDifferent(value, ref _WallTexture);
+    }
+
+    [SerializeField]
+    private Material _TopTexture;
+    public Material TopTexture
+    {
+        get => _TopTexture;
+        set => this.UpdateIfDifferent(value, ref _TopTexture);
+    }
+
+    [SerializeField]
+    private Material _BottomTexture;
+    public Material BottomTexture
+    {
+        get => _BottomTexture;
+        set => this.UpdateIfDifferent(value, ref _BottomTexture);
+    }
     
+    private void UpdateIfDifferent<T>(T value, ref T any)
+    {
+        if (value == null || any == null || value.Equals(any))
+        {
+            return;
+        }
+        any = value;
+        this.BuildTiles();
+    }
+
     [SerializeField]
     private TileMapJSON _JSON; 
     public TileMapJSON JSON 
@@ -51,6 +85,9 @@ public class TileMapController : MonoBehaviour
         foreach ((int x, int y) pos in this.Map.GetAllPos())
         {
             TileController tile = this.CreateTile(this.Map.GetTile(pos));
+            tile.WallTexture = this.WallTexture;
+            tile.TopTexture = this.TopTexture;
+            tile.BottomTexture = this.BottomTexture;
             tile.gameObject.SetActive(true);
             tile.name = $"(x: {pos.x}, y: {pos.y})";
             tile.transform.parent = this.Container;
