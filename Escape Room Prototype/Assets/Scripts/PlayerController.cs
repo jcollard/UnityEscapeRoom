@@ -78,10 +78,7 @@ public class PlayerController : MonoBehaviour
 
     public void Update()
     {
-        if (Input.GetButtonDown("Forward"))
-        {
-
-        }
+        
     }
 
     public void MoveForward() => this.Move(MoveLookup[this.Facing]);
@@ -95,9 +92,6 @@ public class PlayerController : MonoBehaviour
         // TODO: Check current tile and make sure you can't move through a wall
         this.Position = (this.Position.x + offset.x, this.Position.y + offset.y);
     }
-
-    
-
 
     public void RotateLeft()
     {
@@ -129,5 +123,4 @@ public class PlayerController : MonoBehaviour
         this.transform.position = new Vector3(this.Position.x * 10 + offX, 5, this.Position.y * 10 + offZ);
         this.transform.localRotation = RotationLookup[this.Facing];
     }
-
 }
