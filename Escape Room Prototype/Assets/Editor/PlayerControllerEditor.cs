@@ -16,6 +16,51 @@ public class PlayerControllerEditor : Editor
         
         playerController.Facing = (TileSide)EditorGUILayout.EnumPopup("Facing", playerController.Facing);
         
+        Vector2Int pos = EditorGUILayout.Vector2IntField("Position", new Vector2Int(playerController.Position.x, playerController.Position.y));
+        playerController.Position = (pos.x, pos.y);
+
+        GUILayout.BeginHorizontal();
+
+
+        if (GUILayout.Button("<┐"))
+        {
+            playerController.RotateLeft();
+        }
+
+        if (GUILayout.Button("^"))
+        {
+            playerController.MoveForward();
+        }
+
+
+        if (GUILayout.Button("┌>"))
+        {
+            playerController.RotateRight();
+        }
+
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("<-"))
+        {
+            playerController.MoveLeft();
+        }
+
+        if (GUILayout.Button("v"))
+        {
+            playerController.MoveBackward();
+        }
+
+
+        if (GUILayout.Button("->"))
+        {
+            playerController.MoveRight();
+        }
+        GUILayout.EndHorizontal();
+
+
+        
+        
         // tileGrid.Factory = (TileFactory)EditorGUILayout.ObjectField("Tile Factory", tileGrid.Factory, typeof(TileFactory), true);
 
 

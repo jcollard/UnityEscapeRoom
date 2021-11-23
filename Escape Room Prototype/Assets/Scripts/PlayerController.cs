@@ -4,8 +4,26 @@ using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
-    public int X;
-    public int Y;
+    [SerializeField]
+    private int _X;
+    
+    [SerializeField]
+    private int _Y;
+    public (int x, int y) Position
+    {
+        get => (this._X, this._Y);
+        set
+        {
+            (int x, int y) = value;
+            if (_X == x && _Y == y)
+            {
+                return;
+            }
+            _X = x;
+            _Y = y;
+            this.UpdatePosition();
+        }
+    }
 
     [SerializeField]
     private TileSide _Facing = TileSide.North;
@@ -24,6 +42,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private static readonly Dictionary<TileSide, (int, int)> MoveLookup = new Dictionary<TileSide, (int, int)>();
+    private static readonly Dictionary<TileSide, (int, int)> StrafeLookup = new Dictionary<TileSide, (int, int)>();
     private static readonly Dictionary<TileSide, (float, float)> PositionLookup = new Dictionary<TileSide, (float, float)>();
     private static readonly Dictionary<TileSide, Quaternion> RotationLookup = new Dictionary<TileSide, Quaternion>();
 
@@ -33,6 +52,11 @@ public class PlayerController : MonoBehaviour
         MoveLookup[TileSide.East] = (1, 0);
         MoveLookup[TileSide.South] = (0, -1);
         MoveLookup[TileSide.West] = (-1, 0);
+
+        StrafeLookup[TileSide.North] = (1, 0);
+        StrafeLookup[TileSide.East] = (0, -1);
+        StrafeLookup[TileSide.South] = (-1, 0);
+        StrafeLookup[TileSide.West] = (0, 1);
 
         PositionLookup[TileSide.North] = (0, -5);
         PositionLookup[TileSide.South] = (0, 5);
@@ -58,19 +82,49 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void MoveForward()
+    public void MoveForward() => this.Move(MoveLookup[this.Facing]);
+
+    public void MoveLeft() => this.FlipMove(StrafeLookup[this.Facing]);
+    public void MoveRight() => this.Move(StrafeLookup[this.Facing]);
+    public void MoveBackward() => FlipMove(MoveLookup[this.Facing]);
+    private void FlipMove((int x, int y) offset) => this.Move((-offset.x, -offset.y));
+    public void Move((int x, int y) offset)
     {
-        (int offX, int offZ) = MoveLookup[this.Facing];
         // TODO: Check current tile and make sure you can't move through a wall
-        this.X += offX;
-        this.Y += offZ;
-        UpdatePosition();
+        this.Position = (this.Position.x + offset.x, this.Position.y + offset.y);
+    }
+
+    
+
+
+    public void RotateLeft()
+    {
+        this.Facing = this.Facing switch
+        {
+            TileSide.North => TileSide.West,
+            TileSide.West => TileSide.South,
+            TileSide.South => TileSide.East,
+            TileSide.East => TileSide.North,
+            _ => this.Facing
+        };
+    }
+
+    public void RotateRight()
+    {
+        this.Facing = this.Facing switch
+        {
+            TileSide.North => TileSide.East,
+            TileSide.East => TileSide.South,
+            TileSide.South => TileSide.West,
+            TileSide.West => TileSide.North,
+            _ => this.Facing
+        };
     }
 
     public void UpdatePosition()
     {
         (float offX, float offZ) = PositionLookup[this.Facing];
-        this.transform.position = new Vector3(this.X * 10 + offX, 5, this.Y * 10 + offZ);
+        this.transform.position = new Vector3(this.Position.x * 10 + offX, 5, this.Position.y * 10 + offZ);
         this.transform.localRotation = RotationLookup[this.Facing];
     }
 
