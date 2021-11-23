@@ -2,19 +2,23 @@ namespace CaptainCoder.TileBuilder
 {
     using System.Collections.Generic;
     using System;
+    using System.Text;
 
     [Serializable]
     public class TileMap
     {
         private static readonly Dictionary<TileSide, (int, int, TileSide)> NEIGHBOR_INFO = new Dictionary<TileSide, (int, int, TileSide)>();
 
-        static TileMap() {
-            NEIGHBOR_INFO[TileSide.West]  = (-1,  0, TileSide.East);
-            NEIGHBOR_INFO[TileSide.East]  = ( 1,  0, TileSide.West);
-            NEIGHBOR_INFO[TileSide.South] = ( 0, -1, TileSide.North);
-            NEIGHBOR_INFO[TileSide.North] = ( 0,  1, TileSide.South);
+        static TileMap()
+        {
+            NEIGHBOR_INFO[TileSide.West] = (-1, 0, TileSide.East);
+            NEIGHBOR_INFO[TileSide.East] = (1, 0, TileSide.West);
+            NEIGHBOR_INFO[TileSide.South] = (0, -1, TileSide.North);
+            NEIGHBOR_INFO[TileSide.North] = (0, 1, TileSide.South);
 
         }
+
+        public bool IsEmpty { get => tiles.Count == 0; }
 
         private readonly Dictionary<(int, int), ITile> tiles = new Dictionary<(int, int), ITile>();
 
@@ -38,7 +42,7 @@ namespace CaptainCoder.TileBuilder
             ITile newTile = new BasicTile();
 
             // If neighbors exist on any side, copy the wall configuration.
-            foreach(TileSide mySide in TileUtils.WALLS) 
+            foreach (TileSide mySide in TileUtils.WALLS)
             {
                 (int offX, int offY, TileSide neighborSide) = NEIGHBOR_INFO[mySide];
                 if (this.HasTile((pos.x + offX, pos.y + offY)))
@@ -72,11 +76,14 @@ namespace CaptainCoder.TileBuilder
             // Set the wall for this tile
             this.GetTile(pos).SetSide(side, isWall);
 
-            // Check for neighbor, if the neighbor exists update neighbors wall to match.
-            (int offX, int offY, TileSide neighborSide) = NEIGHBOR_INFO[side];
-            if (this.HasTile((pos.x + offX, pos.y + offY)))
+            if (NEIGHBOR_INFO.ContainsKey(side))
             {
-                this.GetTile((pos.x + offX, pos.y + offY)).SetSide(neighborSide, isWall);
+                // Check for neighbor, if the neighbor exists update neighbors wall to match.
+                (int offX, int offY, TileSide neighborSide) = NEIGHBOR_INFO[side];
+                if (this.HasTile((pos.x + offX, pos.y + offY)))
+                {
+                    this.GetTile((pos.x + offX, pos.y + offY)).SetSide(neighborSide, isWall);
+                }
             }
 
             return this;
@@ -94,7 +101,7 @@ namespace CaptainCoder.TileBuilder
 
         public TileMap ToggleWall((int x, int y) pos, TileSide side)
         {
-            if (this.HasTile(pos)) 
+            if (this.HasTile(pos))
             {
                 return this.SetWall(pos, side, !this.GetTile(pos).HasSide(side));
             }

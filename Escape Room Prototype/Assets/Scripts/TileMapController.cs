@@ -9,16 +9,26 @@ public class TileMapController : MonoBehaviour
 
     public TileController TileTemplate;
     public Transform Container;
-
+    
     [SerializeField]
+    private TileMapJSON _JSON; 
+    public TileMapJSON JSON 
+    {
+        get => _JSON; 
+        private set
+        {
+            this._JSON = value;        
+        }
+    }
+
     private TileMap _Map;
     public TileMap Map
     {
         get
         {
-            if (this._Map == null)
+            if (this._Map == null || this._Map.IsEmpty)
             {
-                this._Map = new TileMap();
+                this._Map = this.JSON.ToTileMap();
             }
             return this._Map;
         }
@@ -46,5 +56,6 @@ public class TileMapController : MonoBehaviour
             tile.transform.parent = this.Container;
             tile.transform.localPosition = new Vector3((float)(pos.x * 10), 0, (float)(pos.y * 10));
         }
+        this.JSON = new TileMapJSON(this.Map);
     }
 }

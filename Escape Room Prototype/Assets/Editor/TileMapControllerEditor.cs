@@ -17,7 +17,7 @@ public class TileMapControllerEditor : Editor
         controller.TileTemplate = (TileController)EditorGUILayout.ObjectField("Tile Template", controller.TileTemplate, typeof(TileController), true);
         controller.Container = (Transform)EditorGUILayout.ObjectField("Tile Container", controller.Container, typeof(Transform), true);
 
-        if(GUILayout.Button("Generate Map"))
+        if(GUILayout.Button("Rebuild Map"))
         {
             controller.BuildTiles();
         }
