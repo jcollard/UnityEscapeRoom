@@ -1,11 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
-using UnityEditor.SceneManagement;
 using System;
+using CaptainCoder.TileBuilder;
 
-public class TileRenderer : MonoBehaviour
+public class TileController : MonoBehaviour, ITile
 {
     
     [SerializeField] // TODO: Should I clear this out?
@@ -63,11 +62,6 @@ public class TileRenderer : MonoBehaviour
         }
     }
     
-
-    public void Start()
-    {
-    }
-
     private Dictionary<TileSide, MeshRenderer> InitRenderers()
     {
         Dictionary<TileSide, MeshRenderer> renderers = new Dictionary<TileSide, MeshRenderer>();
@@ -87,75 +81,13 @@ public class TileRenderer : MonoBehaviour
         return renderers;
     }
 
-    public void SetTileSideActive(TileSide side, bool isActive)
-    {
-        this.MeshRenderers[side].gameObject.SetActive(isActive);
-    }
-
-    public bool GetTileSideActive(TileSide side)
+    public bool HasSide(TileSide side)
     {
         return this.MeshRenderers[side].gameObject.activeInHierarchy;
     }
-}
 
-public class TileUtils
-{
-    public static readonly TileSide[] WALLS = new TileSide[]{TileSide.North, TileSide.East, TileSide.South, TileSide.West};
-    public static readonly TileSide[] ALL = new TileSide[]{TileSide.North, TileSide.East, TileSide.South, TileSide.West, TileSide.Top, TileSide.Bottom};
-
-    public static readonly Dictionary<TileSide, string> LABEL = new Dictionary<TileSide, string>();
-
-    static TileUtils()
+    public void SetSide(TileSide side, bool isWall)
     {
-        LABEL[TileSide.North] = "North";
-        LABEL[TileSide.East] = "East";
-        LABEL[TileSide.South] = "South";
-        LABEL[TileSide.West] = "West";
-        LABEL[TileSide.Top] = "Top";
-        LABEL[TileSide.Bottom] = "Bottom";
+        this.MeshRenderers[side].gameObject.SetActive(isWall);
     }
-
-}
-
-public enum TileSide
-{
-    North,
-    East,
-    South,
-    West,
-    Top,
-    Bottom
-}
-
-[CustomEditor(typeof(TileRenderer))]
-public class TileRendererEditor : Editor
-{
-
-    public override void OnInspectorGUI()
-    {
-        EditorGUI.BeginChangeCheck();
-
-        TileRenderer tileRenderer = (TileRenderer)target;
-        
-        tileRenderer.WallTexture = (Material)EditorGUILayout.ObjectField("Wall Texture", tileRenderer.WallTexture, typeof(Material), false);
-        tileRenderer.BottomTexture = (Material)EditorGUILayout.ObjectField("Bottom Texture", tileRenderer.BottomTexture, typeof(Material), false);
-        tileRenderer.TopTexture = (Material)EditorGUILayout.ObjectField("Top Texture", tileRenderer.TopTexture, typeof(Material), false);
-
-        foreach (TileSide side in TileUtils.ALL)
-        {
-            tileRenderer.SetTileSideActive(side, EditorGUILayout.Toggle(TileUtils.LABEL[side], tileRenderer.GetTileSideActive(side)));
-        }
-        
-        
-        // tileGrid.Factory = (TileFactory)EditorGUILayout.ObjectField("Tile Factory", tileGrid.Factory, typeof(TileFactory), true);
-
-
-        if (EditorGUI.EndChangeCheck())
-        {
-            // This code will unsave the current scene if there's any change in the editor GUI.
-            // Hence user would forcefully need to save the scene before changing scene
-            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
-        }
-    }
-
 }
