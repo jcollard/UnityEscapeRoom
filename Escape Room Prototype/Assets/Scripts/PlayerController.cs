@@ -1,14 +1,18 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using CaptainCoder.TileBuilder;
-using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
-    public TileMapController TileMapController;
+
+    public TileMapController TileMap;
+    public Camera MainCamera;
+    public float ActionSpeed;
     
     [SerializeField]
     private int _X;
-    
     [SerializeField]
     private int _Y;
     public (int x, int y) Position
@@ -21,9 +25,20 @@ public class PlayerController : MonoBehaviour
             {
                 return;
             }
+            (Vector3 startPos, Quaternion startRot) = this.GetPosition(this.Position, this.Facing);
+            (Vector3 endPos, Quaternion endRot) = this.GetPosition((x,y), this.Facing);
+            PlayerAction action = new PlayerAction(
+                StartPosition: startPos,
+                EndPosition: endPos,
+                StartRotation: startRot,
+                EndRotation: endRot
+            );
+            this.ActionQueue.Enqueue(action);
+
             _X = x;
             _Y = y;
-            this.UpdatePosition();
+            
+            //this.SetPosition();
         }
     }
 
@@ -38,15 +53,26 @@ public class PlayerController : MonoBehaviour
             {
                 return;
             }
+            (Vector3 startPos, Quaternion startRot) = this.GetPosition(this.Position, this._Facing);
+            (Vector3 endPos, Quaternion endRot) = this.GetPosition(this.Position, value);
+            PlayerAction action = new PlayerAction(
+                StartPosition: startPos,
+                EndPosition: endPos,
+                StartRotation: startRot,
+                EndRotation: endRot
+            );
+            this.ActionQueue.Enqueue(action);
             this._Facing = value;
-            this.UpdatePosition();
+            //this.SetPosition();
         }
     }
 
-    private static readonly Dictionary<TileSide, (int, int)> MoveLookup = new Dictionary<TileSide, (int, int)>();
-    private static readonly Dictionary<TileSide, (int, int)> StrafeLookup = new Dictionary<TileSide, (int, int)>();
-    private static readonly Dictionary<TileSide, (float, float)> PositionLookup = new Dictionary<TileSide, (float, float)>();
-    private static readonly Dictionary<TileSide, Quaternion> RotationLookup = new Dictionary<TileSide, Quaternion>();
+    private Queue<PlayerAction> ActionQueue = new Queue<PlayerAction>();
+    private readonly Dictionary<string, Action> controls;
+    public static readonly Dictionary<TileSide, (int, int)> MoveLookup = new Dictionary<TileSide, (int, int)>();
+    public static readonly Dictionary<TileSide, (int, int)> StrafeLookup = new Dictionary<TileSide, (int, int)>();
+    public static readonly Dictionary<TileSide, (float, float)> PositionLookup = new Dictionary<TileSide, (float, float)>();
+    public static readonly Dictionary<TileSide, Quaternion> RotationLookup = new Dictionary<TileSide, Quaternion>();
 
     static PlayerController()
     {
@@ -73,24 +99,37 @@ public class PlayerController : MonoBehaviour
 
     public void Start()
     {
-        UpdatePosition();
-    }
-
-    public void Update()
-    {
-        
+        SetPosition();
     }
 
     public void MoveForward() => this.Move(MoveLookup[this.Facing]);
-
     public void MoveLeft() => this.FlipMove(StrafeLookup[this.Facing]);
     public void MoveRight() => this.Move(StrafeLookup[this.Facing]);
     public void MoveBackward() => FlipMove(MoveLookup[this.Facing]);
     private void FlipMove((int x, int y) offset) => this.Move((-offset.x, -offset.y));
     public void Move((int x, int y) offset)
     {
-        // TODO: Check current tile and make sure you can't move through a wall
+        TileSide side = this.FindSide(offset);
+        if (this.TileMap.Map.GetTile(this.Position).HasSide(side)){
+            // TODO: Queue "hitting wall"
+            Debug.Log("Bounce!");
+            return;
+        }
         this.Position = (this.Position.x + offset.x, this.Position.y + offset.y);
+        // TODO: Queue animation
+    }
+
+    private TileSide FindSide((int, int) toCheck)
+    {
+        foreach (TileSide side in MoveLookup.Keys)
+        {
+            (int, int) offset = MoveLookup[side];
+            if (offset == toCheck)
+            {
+                return side;
+            }
+        }
+        throw new Exception($"Bad move detected {toCheck}. Can only move orthoganally.");
     }
 
     public void RotateLeft()
@@ -117,10 +156,96 @@ public class PlayerController : MonoBehaviour
         };
     }
 
-    public void UpdatePosition()
+    public void SetPosition()
     {
         (float offX, float offZ) = PositionLookup[this.Facing];
-        this.transform.position = new Vector3(this.Position.x * 10 + offX, 5, this.Position.y * 10 + offZ);
-        this.transform.localRotation = RotationLookup[this.Facing];
+        MainCamera.transform.position = new Vector3(this.Position.x * 10 + offX, 5, this.Position.y * 10 + offZ);
+        MainCamera.transform.localRotation = RotationLookup[this.Facing];
     }
+
+    private (Vector3, Quaternion) GetPosition((int x, int y) pos, TileSide side)
+    {
+        (float offX, float offZ) = PositionLookup[side];
+        Vector3 newPosition =  new Vector3(pos.x * 10 + offX, 5, pos.y * 10 + offZ);
+        Quaternion newRotation = RotationLookup[side];
+        return (newPosition, newRotation);
+    }
+
+    public PlayerController()
+    {
+        controls = new Dictionary<string, Action>();
+        controls["RotateLeft"] = this.RotateLeft;
+        controls["Forward"] = this.MoveForward;
+        controls["RotateRight"] = this.RotateRight;
+        controls["StrafeLeft"] = this.MoveLeft;
+        controls["Backward"] = this.MoveBackward;
+        controls["StrafeRight"] = this.MoveRight;
+        
+    }
+
+    public void Update()
+    {
+        foreach (string control in controls.Keys)
+        {
+            if (Input.GetButtonUp(control))
+            {
+                controls[control]();
+            }
+        }
+
+        SmoothUpdatePosition();
+    }
+
+    public void SmoothUpdatePosition()
+    {
+        if (this.ActionQueue.Count == 0)
+        {
+            return;
+        }
+        PlayerAction action = this.ActionQueue.Peek();
+        if (!action.Started)
+        {
+            action.Start(Time.time, Time.time + ActionSpeed);
+        }
+        float percentage = Mathf.Clamp((Time.time - action.StartTime) / (action.EndTime - action.StartTime), 0, 1);
+        MainCamera.transform.position = Vector3.Lerp(action.StartPosition, action.EndPosition, percentage);
+        MainCamera.transform.rotation = Quaternion.Lerp(action.StartRotation, action.EndRotation, percentage);
+        if (action.EndTime < Time.time)
+        {
+            this.ActionQueue.Dequeue();
+        }
+    }
+
+}
+
+public class PlayerAction
+{
+    public readonly Vector3 StartPosition;
+    public readonly Vector3 EndPosition;
+    public readonly Quaternion StartRotation;
+    public readonly Quaternion EndRotation;
+    public bool Started {get; private set;}
+    public float StartTime {get; private set;}
+    public float EndTime {get; private set;}
+
+    public PlayerAction(Vector3 StartPosition, Vector3 EndPosition, Quaternion StartRotation, Quaternion EndRotation)
+    {
+        this.StartPosition = StartPosition;
+        this.EndPosition = EndPosition;
+        this.StartRotation = StartRotation;
+        this.EndRotation = EndRotation;
+        this.Started = false;
+    }
+
+    public void Start(float StartTime, float EndTime)
+    {
+        if (this.Started)
+        {
+            throw new Exception("PlayerAction already started.");
+        }
+        this.StartTime = StartTime;
+        this.EndTime = EndTime;
+        Started = true;
+    }
+
 }

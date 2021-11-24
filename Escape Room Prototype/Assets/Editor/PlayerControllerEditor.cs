@@ -4,15 +4,15 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using CaptainCoder.TileBuilder;
 
-[CustomEditor(typeof(PlayerController))]
-public class PlayerControllerEditor : Editor
+[CustomEditor(typeof(MapBuilderController))]
+public class MapBuilderControllerEditor : Editor
 {
 
     public override void OnInspectorGUI()
     {
         EditorGUI.BeginChangeCheck();
 
-        PlayerController playerController = (PlayerController)target;
+        MapBuilderController playerController = (MapBuilderController)target;
         
         playerController.TileMapController = (TileMapController)EditorGUILayout.ObjectField("Tile Map Controller", playerController.TileMapController, typeof(TileMapController), true);
 
