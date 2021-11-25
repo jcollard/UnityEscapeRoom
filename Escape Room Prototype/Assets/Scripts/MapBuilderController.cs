@@ -124,4 +124,9 @@ public class MapBuilderController : MonoBehaviour
         this.MainCamera.transform.position = new Vector3(this.Position.x * 10 + offX, 5, this.Position.y * 10 + offZ);
         this.MainCamera.transform.localRotation = RotationLookup[this.Facing];
     }
+
+    public string GetMapString()
+    {
+        return this.TileMapController.Map.ToStringMap(this.Position.x, this.Position.y, this.Facing);
+    }
 }

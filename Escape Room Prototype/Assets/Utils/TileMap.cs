@@ -107,7 +107,7 @@ namespace CaptainCoder.TileBuilder
             return this;
         }
 
-        public string ToStringMap()
+        public string ToStringMap(int cursorX = 0, int cursorY = 0, TileSide facing = TileSide.Top)
         {
             int minX = int.MaxValue;
             int minY = int.MaxValue;
@@ -260,6 +260,17 @@ namespace CaptainCoder.TileBuilder
 
                 }
             }
+
+            cursorX = ((cursorX - minX) * 2) + 1;
+            cursorY = ((maxY - cursorY) * 2) + 1;
+            textMap[cursorX, cursorY] = facing switch
+            {
+                TileSide.North => '^',
+                TileSide.South => 'v',
+                TileSide.East => '>',
+                TileSide.West => '<',
+                _ => textMap[cursorX, cursorY]
+            };
 
             StringBuilder builder = new StringBuilder();
             // TODO: Optimize for row / column, this has bad spatial memory access.

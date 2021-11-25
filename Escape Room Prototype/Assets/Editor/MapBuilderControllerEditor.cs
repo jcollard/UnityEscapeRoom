@@ -8,38 +8,52 @@ using CaptainCoder.TileBuilder;
 public class MapBuilderControllerEditor : Editor
 {
 
+    private int FontSize = 12;
+    private GUIStyle _MonoSpaceFont;
+    private GUIStyle MonoSpaceFont
+    {
+        get
+        {
+            if (_MonoSpaceFont == null)
+            {
+                _MonoSpaceFont = new GUIStyle(CaptainCoder.UnityEditorUtils.MonoSpacedTextArea);
+            }
+            return _MonoSpaceFont;
+        }
+    }
+
     public override void OnInspectorGUI()
     {
         EditorGUI.BeginChangeCheck();
 
-        MapBuilderController playerController = (MapBuilderController)target;
-        playerController.MainCamera = (Camera)EditorGUILayout.ObjectField("Camera", playerController.MainCamera, typeof(Camera), true);
+        MapBuilderController controller = (MapBuilderController)target;
+        controller.MainCamera = (Camera)EditorGUILayout.ObjectField("Camera", controller.MainCamera, typeof(Camera), true);
 
-        
-        playerController.TileMapController = (TileMapController)EditorGUILayout.ObjectField("Tile Map Controller", playerController.TileMapController, typeof(TileMapController), true);
 
-        playerController.Facing = (TileSide)EditorGUILayout.EnumPopup("Facing", playerController.Facing);
-        
-        Vector2Int pos = EditorGUILayout.Vector2IntField("Position", new Vector2Int(playerController.Position.x, playerController.Position.y));
-        playerController.Position = (pos.x, pos.y);
+        controller.TileMapController = (TileMapController)EditorGUILayout.ObjectField("Tile Map Controller", controller.TileMapController, typeof(TileMapController), true);
+
+        controller.Facing = (TileSide)EditorGUILayout.EnumPopup("Facing", controller.Facing);
+
+        Vector2Int pos = EditorGUILayout.Vector2IntField("Position", new Vector2Int(controller.Position.x, controller.Position.y));
+        controller.Position = (pos.x, pos.y);
 
         GUILayout.BeginHorizontal();
 
 
         if (GUILayout.Button("<┐"))
         {
-            playerController.RotateLeft();
+            controller.RotateLeft();
         }
 
         if (GUILayout.Button("^"))
         {
-            playerController.MoveForward();
+            controller.MoveForward();
         }
 
 
         if (GUILayout.Button("┌>"))
         {
-            playerController.RotateRight();
+            controller.RotateRight();
         }
 
         GUILayout.EndHorizontal();
@@ -47,44 +61,50 @@ public class MapBuilderControllerEditor : Editor
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("<-"))
         {
-            playerController.MoveLeft();
+            controller.MoveLeft();
         }
 
         if (GUILayout.Button("v"))
         {
-            playerController.MoveBackward();
+            controller.MoveBackward();
         }
 
 
         if (GUILayout.Button("->"))
         {
-            playerController.MoveRight();
+            controller.MoveRight();
         }
         GUILayout.EndHorizontal();
 
         if (GUILayout.Button("Wall"))
         {
-            playerController.TileMapController.Map.ToggleWall(playerController.Position, playerController.Facing);
+            controller.TileMapController.Map.ToggleWall(controller.Position, controller.Facing);
             // TODO (jcollard 11/23/2021): We probably shouldn't rebuild the entire map.
             // It would be useful to have BuildTiles take in a range to rebuild. 
             // This requires caching the locations of each TileController so we can either
             // just delete those OR update them directly.
-            playerController.TileMapController.BuildTiles();
+            controller.TileMapController.BuildTiles();
         }
 
-        if (GUILayout.Button("Init Tile")) 
+        if (GUILayout.Button("Init Tile"))
         {
-            playerController.TileMapController.Map.InitTileAt(playerController.Position);
+            controller.TileMapController.Map.InitTileAt(controller.Position);
             // TODO (jcollard 11/23/2021): Don't rebuild entire map
-            playerController.TileMapController.BuildTiles();
+            controller.TileMapController.BuildTiles();
         }
 
         if (GUILayout.Button("Remove Tile"))
         {
-            playerController.TileMapController.Map.RemoveTile(playerController.Position);
+            controller.TileMapController.Map.RemoveTile(controller.Position);
             // TODO (jcollard 11/23/2021): Don't rebuild entire map
-            playerController.TileMapController.BuildTiles();
+            controller.TileMapController.BuildTiles();
         }
+
+        FontSize = EditorGUILayout.IntField("Font Size", FontSize);
+
+        MonoSpaceFont.fontSize = FontSize;
+        EditorGUILayout.TextArea(controller.GetMapString(), MonoSpaceFont);
+
 
         if (EditorGUI.EndChangeCheck())
         {
