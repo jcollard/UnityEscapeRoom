@@ -277,7 +277,8 @@ namespace CaptainCoder.TileBuilder
             return type switch {
                 WallType.None => ' ',
                 WallType.Door => '+',
-                WallType.Wall => this.GetWallChar(facing)
+                WallType.Wall => this.GetWallChar(facing),
+                _ => throw new Exception("Illegal WallType detected."),
             };
             throw new Exception("Error in GetCharRep.");
         }

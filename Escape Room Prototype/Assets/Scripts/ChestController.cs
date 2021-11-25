@@ -37,7 +37,7 @@ public class ChestController : MonoBehaviour
             Set();
         }
     }
-    
+
     private float StartTime = -1f;
     private float EndTime = -1f;
 
@@ -71,7 +71,6 @@ public class ChestController : MonoBehaviour
 
     public void Open()
     {
-        Debug.Log("Called open?");
         if (!this.IsOpen)
         {
             this.StartTime = Time.time;

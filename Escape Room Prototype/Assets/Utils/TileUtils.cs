@@ -25,7 +25,8 @@ namespace CaptainCoder.TileBuilder
             return prev switch {
                 WallType.None => WallType.Wall,
                 WallType.Wall => WallType.Door,
-                WallType.Door => WallType.None
+                WallType.Door => WallType.None,
+                _ => throw new Exception($"Illegal WallType Detected.")
             };
         }
     }

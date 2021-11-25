@@ -11,6 +11,34 @@ public class PlayerController : MonoBehaviour
     public Camera MainCamera;
     public float ActionSpeed;
 
+    private bool _LookDown = false;
+    public bool LookDown
+    {
+        get => _LookDown;
+        set
+        {
+            if (value == _LookDown)
+            {
+                return;
+            }
+
+
+            (Vector3 startPos, Quaternion startRot) = this.GetPosition(this.Position, this.Facing, this._LookDown);
+            (Vector3 endPos, Quaternion endRot) = this.GetPosition(this.Position, this.Facing, value);
+
+            PlayerAction action = new PlayerAction(
+                StartPosition: startPos,
+                EndPosition: endPos,
+                StartRotation: startRot,
+                EndRotation: endRot
+            );
+            this.ActionQueue.Enqueue(action);
+
+            _LookDown = value;
+
+        }
+    }
+
     [SerializeField]
     private int _X;
     [SerializeField]
@@ -25,8 +53,9 @@ public class PlayerController : MonoBehaviour
             {
                 return;
             }
-            (Vector3 startPos, Quaternion startRot) = this.GetPosition(this.Position, this.Facing);
-            (Vector3 endPos, Quaternion endRot) = this.GetPosition((x, y), this.Facing);
+
+            (Vector3 startPos, Quaternion startRot) = this.GetPosition(this.Position, this.Facing, this.LookDown);
+            (Vector3 endPos, Quaternion endRot) = this.GetPosition((x, y), this.Facing, this.LookDown);
             PlayerAction action = new PlayerAction(
                 StartPosition: startPos,
                 EndPosition: endPos,
@@ -53,8 +82,9 @@ public class PlayerController : MonoBehaviour
             {
                 return;
             }
-            (Vector3 startPos, Quaternion startRot) = this.GetPosition(this.Position, this._Facing);
-            (Vector3 endPos, Quaternion endRot) = this.GetPosition(this.Position, value);
+
+            (Vector3 startPos, Quaternion startRot) = this.GetPosition(this.Position, this._Facing, this.LookDown);
+            (Vector3 endPos, Quaternion endRot) = this.GetPosition(this.Position, value, this.LookDown);
             PlayerAction action = new PlayerAction(
                 StartPosition: startPos,
                 EndPosition: endPos,
@@ -165,11 +195,12 @@ public class PlayerController : MonoBehaviour
         MainCamera.transform.localRotation = RotationLookup[this.Facing];
     }
 
-    private (Vector3, Quaternion) GetPosition((int x, int y) pos, TileSide side)
+    private (Vector3, Quaternion) GetPosition((int x, int y) pos, TileSide side, bool IsLookingDown)
     {
         (float offX, float offZ) = PositionLookup[side];
         Vector3 newPosition = new Vector3(pos.x * 10 + offX, 5, pos.y * 10 + offZ);
-        Quaternion newRotation = RotationLookup[side];
+        Quaternion lookup = RotationLookup[side];
+        Quaternion newRotation = Quaternion.Euler(IsLookingDown ? 45 : 0, lookup.eulerAngles.y, lookup.eulerAngles.z);
         return (newPosition, newRotation);
     }
 
@@ -182,6 +213,7 @@ public class PlayerController : MonoBehaviour
         controls["StrafeLeft"] = this.MoveLeft;
         controls["Backward"] = this.MoveBackward;
         controls["StrafeRight"] = this.MoveRight;
+        controls["LookDown"] = () => this.LookDown = !this.LookDown;
 
     }
 
