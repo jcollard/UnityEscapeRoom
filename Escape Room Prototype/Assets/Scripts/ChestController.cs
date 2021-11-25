@@ -16,11 +16,28 @@ public class ChestController : MonoBehaviour
     private Vector3 StartPosition = new Vector3(0, 1.5f, 0);
     private Quaternion StartRotation = Quaternion.Euler(0, 180, 0);
     public float OpenSpeed = 0.5f;
+
+    [SerializeField]
     private bool IsFinished = false;
     public bool IsOpen
     {
         get => StartTime > 0;
+        set
+        {
+            if (value)
+            {
+                StartTime = 1;
+                EndTime = 1;
+            }
+            else
+            {
+                StartTime = -1;
+                EndTime = -1;
+            }
+            Set();
+        }
     }
+    
     private float StartTime = -1f;
     private float EndTime = -1f;
 
@@ -30,6 +47,19 @@ public class ChestController : MonoBehaviour
         {
             return;
         }
+        Set();
+    }
+
+    private void Set()
+    {
+        if (!IsOpen)
+        {
+            Lid.localPosition = StartPosition;
+            Lid.localRotation = StartRotation;
+            IsFinished = false;
+            return;
+        }
+
         float percent = (Time.time - StartTime) / (EndTime - StartTime);
         Lid.localPosition = Vector3.Lerp(StartPosition, EndPosition, percent);
         Lid.localRotation = Quaternion.Lerp(StartRotation, EndRotation, percent);

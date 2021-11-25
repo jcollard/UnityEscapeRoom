@@ -8,9 +8,9 @@ using CaptainCoder.TileBuilder;
 public class MapBuilderControllerEditor : Editor
 {
 
-    private int FontSize = 12;
-    private GUIStyle _MonoSpaceFont;
-    private GUIStyle MonoSpaceFont
+    private static int FontSize = 12;
+    private static GUIStyle _MonoSpaceFont;
+    private static GUIStyle MonoSpaceFont
     {
         get
         {
