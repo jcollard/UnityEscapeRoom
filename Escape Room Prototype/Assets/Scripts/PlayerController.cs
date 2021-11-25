@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     public TileMapController TileMap;
     public Camera MainCamera;
     public float ActionSpeed;
-    
+
     [SerializeField]
     private int _X;
     [SerializeField]
@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
                 return;
             }
             (Vector3 startPos, Quaternion startRot) = this.GetPosition(this.Position, this.Facing);
-            (Vector3 endPos, Quaternion endRot) = this.GetPosition((x,y), this.Facing);
+            (Vector3 endPos, Quaternion endRot) = this.GetPosition((x, y), this.Facing);
             PlayerAction action = new PlayerAction(
                 StartPosition: startPos,
                 EndPosition: endPos,
@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour
 
             _X = x;
             _Y = y;
-            
+
             //this.SetPosition();
         }
     }
@@ -110,7 +110,8 @@ public class PlayerController : MonoBehaviour
     public void Move((int x, int y) offset)
     {
         TileSide side = this.FindSide(offset);
-        if (this.TileMap.Map.GetTile(this.Position).HasSide(side)){
+        if (this.TileMap.Map.GetTile(this.Position).HasSide(side))
+        {
             // TODO: Queue "hitting wall"
             Debug.Log("Bounce!");
             return;
@@ -166,7 +167,7 @@ public class PlayerController : MonoBehaviour
     private (Vector3, Quaternion) GetPosition((int x, int y) pos, TileSide side)
     {
         (float offX, float offZ) = PositionLookup[side];
-        Vector3 newPosition =  new Vector3(pos.x * 10 + offX, 5, pos.y * 10 + offZ);
+        Vector3 newPosition = new Vector3(pos.x * 10 + offX, 5, pos.y * 10 + offZ);
         Quaternion newRotation = RotationLookup[side];
         return (newPosition, newRotation);
     }
@@ -180,7 +181,7 @@ public class PlayerController : MonoBehaviour
         controls["StrafeLeft"] = this.MoveLeft;
         controls["Backward"] = this.MoveBackward;
         controls["StrafeRight"] = this.MoveRight;
-        
+
     }
 
     public void Update()
@@ -203,6 +204,13 @@ public class PlayerController : MonoBehaviour
             return;
         }
         PlayerAction action = this.ActionQueue.Peek();
+        if (ActionSpeed <= 0)
+        {
+            this.ActionQueue.Dequeue();
+            this.SetPosition();
+            return;
+        }
+
         if (!action.Started)
         {
             action.Start(Time.time, Time.time + ActionSpeed);
@@ -224,9 +232,9 @@ public class PlayerAction
     public readonly Vector3 EndPosition;
     public readonly Quaternion StartRotation;
     public readonly Quaternion EndRotation;
-    public bool Started {get; private set;}
-    public float StartTime {get; private set;}
-    public float EndTime {get; private set;}
+    public bool Started { get; private set; }
+    public float StartTime { get; private set; }
+    public float EndTime { get; private set; }
 
     public PlayerAction(Vector3 StartPosition, Vector3 EndPosition, Quaternion StartRotation, Quaternion EndRotation)
     {
