@@ -13,6 +13,8 @@ public class MapBuilderControllerEditor : Editor
         EditorGUI.BeginChangeCheck();
 
         MapBuilderController playerController = (MapBuilderController)target;
+        playerController.MainCamera = (Camera)EditorGUILayout.ObjectField("Camera", playerController.MainCamera, typeof(Camera), true);
+
         
         playerController.TileMapController = (TileMapController)EditorGUILayout.ObjectField("Tile Map Controller", playerController.TileMapController, typeof(TileMapController), true);
 

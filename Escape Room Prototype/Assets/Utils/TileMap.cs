@@ -15,7 +15,6 @@ namespace CaptainCoder.TileBuilder
             NEIGHBOR_INFO[TileSide.East] = (1, 0, TileSide.West);
             NEIGHBOR_INFO[TileSide.South] = (0, -1, TileSide.North);
             NEIGHBOR_INFO[TileSide.North] = (0, 1, TileSide.South);
-
         }
 
         public bool IsEmpty { get => tiles.Count == 0; }
@@ -106,6 +105,175 @@ namespace CaptainCoder.TileBuilder
                 return this.SetWall(pos, side, !this.GetTile(pos).HasSide(side));
             }
             return this;
+        }
+
+        public string ToStringMap()
+        {
+            int minX = int.MaxValue;
+            int minY = int.MaxValue;
+            int maxX = int.MinValue;
+            int maxY = int.MinValue;
+            foreach ((int x, int y) pos in this.tiles.Keys)
+            {
+                minX = Math.Min(minX, pos.x);
+                maxX = Math.Max(maxX, pos.x);
+                minY = Math.Min(minY, pos.y);
+                maxY = Math.Max(maxY, pos.y);
+            }
+
+            int sizeX = (maxX + 1) - minX;
+            int sizeY = (maxY + 1) - minY;
+            // UnityEngine.Debug.Log($"Size: {sizeX}, {sizeY}");
+
+            char[,] textMap = new char[(sizeX * 2) + 1, (sizeY * 2) + 1];
+            for (int i = 0; i < textMap.GetLength(0); i++)
+            {
+                for (int j = 0; j < textMap.GetLength(1); j++)
+                {
+                    textMap[i, j] = ' ';
+                }
+            }
+
+            for (int y = minY; y <= maxY; y++)
+            {
+                for (int x = minX; x <= maxX; x++)
+                {
+                    // UnityEngine.Debug.Log($"Building {x}, {y}");
+                    int _x = x - minX;
+                    int _y = maxY - y; // Y decreasing moves up
+                    // UnityEngine.Debug.Log($"Translates to {_x}, {_y}");
+                    int top = (_y) * 2;
+                    int left = (_x) * 2;
+                    // UnityEngine.Debug.Log($"Top: {top}, Left: {left}");
+
+                    // If there is no tile here, skip it.
+                    if (!this.HasTile((x, y)))
+                    {
+                        continue;
+                    }
+                    // UnityEngine.Debug.Log($"Found Tile @ {x}, {y}");
+
+                    ITile tile = this.GetTile((x, y));
+
+                    // Corners
+
+
+                    textMap[left, top] = '*';
+                    // If both the tile to the left of this and the current
+                    // have a North, we switch this to a '-'
+                    if (tile.HasSide(TileSide.North) &&
+                        this.HasTile((x - 1, y)) &&
+                        this.GetTile((x - 1, y)).HasSide(TileSide.North))
+                    {
+                        textMap[left, top] = '-';
+                    }
+
+                    // If both the tile to the left of this and the current
+                    // do not have a north, we switch this to a ' '
+                    if (!tile.HasSide(TileSide.North) &&
+                        this.HasTile((x - 1, y)) &&
+                        !this.GetTile((x - 1, y)).HasSide(TileSide.North))
+                    {
+                        textMap[left, top] = ' ';
+                    }
+
+                    // If both the tile to the right of this and the current
+                    // have a North, we switch this to a '-'
+                    textMap[left + 2, top] = '*';
+                    if (tile.HasSide(TileSide.North) &&
+                        this.HasTile((x + 1, y)) &&
+                        this.GetTile((x + 1, y)).HasSide(TileSide.North))
+                    {
+                        textMap[left + 2, top] = '-';
+                    }
+
+                    // If both the tile to the left of this and the current
+                    // do not have a north, we switch this to a ' '
+                    if (!tile.HasSide(TileSide.North) &&
+                        this.HasTile((x + 1, y)) &&
+                        !this.GetTile((x + 1, y)).HasSide(TileSide.North))
+                    {
+                        textMap[left + 2, top] = ' ';
+                    }
+                    
+
+                    textMap[left, top + 2] = '*';
+                    // If both the tile to the left of this and the current
+                    // have a South, we switch this to a '-'
+                    if (tile.HasSide(TileSide.South) &&
+                        this.HasTile((x - 1, y)) &&
+                        this.GetTile((x - 1, y)).HasSide(TileSide.South))
+                    {
+                        textMap[left, top + 2] = '-';
+                    }
+
+                    // If both the tile to the right of this and the current
+                    // do not have a South, we switch this to a ' '
+                    if (!tile.HasSide(TileSide.South) &&
+                        this.HasTile((x - 1, y)) &&
+                        !this.GetTile((x - 1, y)).HasSide(TileSide.South))
+                    {
+                        textMap[left, top + 2] = ' ';
+                    }
+
+                    textMap[left + 2, top + 2] = '*';
+                    // If both the tile to the right of this and the current
+                    // have a South, we switch this to a '-'
+                    if (tile.HasSide(TileSide.South) &&
+                        this.HasTile((x + 1, y)) &&
+                        this.GetTile((x + 1, y)).HasSide(TileSide.South))
+                    {
+                        textMap[left + 2, top + 2] = '-';
+                    }
+
+                    // If both the tile to the left of this and the current
+                    // do not have a South, we switch this to a ' '
+                    if (!tile.HasSide(TileSide.South) &&
+                        this.HasTile((x + 1, y)) &&
+                        !this.GetTile((x + 1, y)).HasSide(TileSide.South))
+                    {
+                        textMap[left + 2, top + 2] = ' ';
+                    }
+
+                    // Center
+                    textMap[left + 1, top + 1] = '.';
+
+                    if (tile.HasSide(TileSide.East))
+                    {
+                        textMap[left + 2, top + 1] = '|';
+                    }
+
+                    if (tile.HasSide(TileSide.West))
+                    {
+                        textMap[left, top + 1] = '|';
+                    }
+
+                    if (tile.HasSide(TileSide.North))
+                    {
+                        textMap[left + 1, top] = '-';
+                    }
+
+                    if (tile.HasSide(TileSide.South))
+                    {
+                        textMap[left + 1, top + 2] = '-';
+                    }
+
+                }
+            }
+
+            StringBuilder builder = new StringBuilder();
+            // TODO: Optimize for row / column, this has bad spatial memory access.
+            for (int y = 0; y < textMap.GetLength(1); y++)
+            {
+                for (int x = 0; x < textMap.GetLength(0); x++)
+                {
+                    builder.Append(textMap[x, y]);
+                }
+                builder.Append('\n');
+
+            }
+
+            return builder.ToString();
         }
     }
 

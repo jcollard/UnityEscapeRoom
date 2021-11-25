@@ -1,5 +1,5 @@
 #if UNITY_EDITOR
-namespace Collard
+namespace CaptainCoder
 {
     using UnityEngine;
     using UnityEditor;

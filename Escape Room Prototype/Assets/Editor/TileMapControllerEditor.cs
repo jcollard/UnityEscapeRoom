@@ -20,6 +20,8 @@ public class TileMapControllerEditor : Editor
         controller.TopTexture = (Material)EditorGUILayout.ObjectField("Top Texture", controller.TopTexture, typeof(Material), false);
         controller.BottomTexture = (Material)EditorGUILayout.ObjectField("Bottom Texture", controller.BottomTexture, typeof(Material), false);
 
+        EditorGUILayout.TextArea(controller.Map.ToStringMap(), CaptainCoder.UnityEditorUtils.MonoSpacedTextArea);
+
         if(GUILayout.Button("Rebuild Map"))
         {
             controller.BuildTiles();

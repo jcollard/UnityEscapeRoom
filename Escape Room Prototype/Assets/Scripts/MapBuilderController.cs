@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class MapBuilderController : MonoBehaviour
 {
+
+    public Camera MainCamera;
     public TileMapController TileMapController;
     
     [SerializeField]
@@ -119,7 +121,7 @@ public class MapBuilderController : MonoBehaviour
     public void UpdatePosition()
     {
         (float offX, float offZ) = PositionLookup[this.Facing];
-        this.transform.position = new Vector3(this.Position.x * 10 + offX, 5, this.Position.y * 10 + offZ);
-        this.transform.localRotation = RotationLookup[this.Facing];
+        this.MainCamera.transform.position = new Vector3(this.Position.x * 10 + offX, 5, this.Position.y * 10 + offZ);
+        this.MainCamera.transform.localRotation = RotationLookup[this.Facing];
     }
 }
