@@ -20,7 +20,8 @@ public class TileControllerEditor : Editor
 
         foreach (TileSide side in TileUtils.ALL)
         {
-            tileRenderer.SetSide(side, EditorGUILayout.Toggle(TileUtils.LABEL[side], tileRenderer.HasSide(side)));
+            //tileRenderer.SetSide(side, (WallType)EditorGUILayout.EnumPopup("Wall Type", tileRenderer.GetSide(side)));
+            EditorGUILayout.EnumPopup(TileUtils.LABEL[side], tileRenderer.GetSide(side));
         }
         
         

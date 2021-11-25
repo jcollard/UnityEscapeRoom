@@ -73,7 +73,7 @@ public class TileMapController : MonoBehaviour
         TileController newTile = UnityEngine.Object.Instantiate<TileController>(TileTemplate);
         foreach (TileSide side in TileUtils.ALL)
         {
-            newTile.SetSide(side, tile.HasSide(side));
+            newTile.SetSide(side, tile.HasSide(side) ? tile.GetSide(side) : WallType.None);
         }
         return newTile;
     }

@@ -46,7 +46,7 @@ namespace CaptainCoder.TileBuilder
                 (int offX, int offY, TileSide neighborSide) = NEIGHBOR_INFO[mySide];
                 if (this.HasTile((pos.x + offX, pos.y + offY)))
                 {
-                    newTile.SetSide(mySide, this.GetTile((pos.x + offX, pos.y + offY)).HasSide(neighborSide));
+                    newTile.SetSide(mySide, this.GetTile((pos.x + offX, pos.y + offY)).GetSide(neighborSide));
                 }
             }
             this.tiles[pos] = newTile;
@@ -65,7 +65,7 @@ namespace CaptainCoder.TileBuilder
             return this;
         }
 
-        public TileMap SetWall((int x, int y) pos, TileSide side, bool isWall)
+        public TileMap SetWall((int x, int y) pos, TileSide side, WallType wallType)
         {
             if (!this.HasTile(pos))
             {
@@ -73,7 +73,7 @@ namespace CaptainCoder.TileBuilder
             }
 
             // Set the wall for this tile
-            this.GetTile(pos).SetSide(side, isWall);
+            this.GetTile(pos).SetSide(side, wallType);
 
             if (NEIGHBOR_INFO.ContainsKey(side))
             {
@@ -81,7 +81,7 @@ namespace CaptainCoder.TileBuilder
                 (int offX, int offY, TileSide neighborSide) = NEIGHBOR_INFO[side];
                 if (this.HasTile((pos.x + offX, pos.y + offY)))
                 {
-                    this.GetTile((pos.x + offX, pos.y + offY)).SetSide(neighborSide, isWall);
+                    this.GetTile((pos.x + offX, pos.y + offY)).SetSide(neighborSide, wallType);
                 }
             }
 
@@ -90,19 +90,19 @@ namespace CaptainCoder.TileBuilder
 
         public TileMap AddWall((int x, int y) pos, TileSide side)
         {
-            return this.SetWall(pos, side, true);
+            return this.SetWall(pos, side, WallType.Wall);
         }
 
         public TileMap RemoveWall((int x, int y) pos, TileSide side)
         {
-            return this.SetWall(pos, side, false);
+            return this.SetWall(pos, side, WallType.None);
         }
 
         public TileMap ToggleWall((int x, int y) pos, TileSide side)
         {
             if (this.HasTile(pos))
             {
-                return this.SetWall(pos, side, !this.GetTile(pos).HasSide(side));
+                return this.SetWall(pos, side, TileUtils.Toggle(this.GetTile(pos).GetSide(side)));
             }
             return this;
         }
@@ -288,33 +288,47 @@ namespace CaptainCoder.TileBuilder
         }
     }
 
+    public enum WallType
+    {
+        None,
+        Wall,
+        Door
+        
+    }
+
     public interface ITile
     {
         bool HasSide(TileSide side);
-        void SetSide(TileSide side, bool isWall);
+        WallType GetSide(TileSide side);
+        void SetSide(TileSide side, WallType isWall);
     }
 
     [Serializable]
     internal class BasicTile : ITile
     {
-        private readonly Dictionary<TileSide, bool> IsWall = new Dictionary<TileSide, bool>();
+        private readonly Dictionary<TileSide, WallType> WallType = new Dictionary<TileSide, WallType>();
 
         public BasicTile()
         {
             foreach (TileSide side in TileUtils.ALL)
             {
-                IsWall[side] = true;
+                WallType[side] = TileBuilder.WallType.Wall;
             }
+        }
+
+        public WallType GetSide(TileSide side)
+        {
+            return this.WallType[side];
         }
 
         public bool HasSide(TileSide side)
         {
-            return this.IsWall[side];
+            return this.WallType.ContainsKey(side) && this.WallType[side] != TileBuilder.WallType.None;
         }
 
-        public void SetSide(TileSide side, bool isWall)
+        public void SetSide(TileSide side, WallType wallType)
         {
-            this.IsWall[side] = isWall;
+            this.WallType[side] = wallType;
         }
     }
 

@@ -19,5 +19,14 @@ namespace CaptainCoder.TileBuilder
             LABEL[TileSide.Top] = "Top";
             LABEL[TileSide.Bottom] = "Bottom";
         }
+
+        public static WallType Toggle(WallType prev)
+        {
+            return prev switch {
+                WallType.None => WallType.Wall,
+                WallType.Wall => WallType.Door,
+                WallType.Door => WallType.None
+            };
+        }
     }
 }

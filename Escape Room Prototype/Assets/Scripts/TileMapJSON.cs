@@ -16,12 +16,12 @@ public class TileMapJSON
             info.X = x;
             info.Y = y;
             ITile tile = map.GetTile((x, y));
-            info.Top = tile.HasSide(TileSide.Top);
-            info.Bottom = tile.HasSide(TileSide.Bottom);
-            info.North = tile.HasSide(TileSide.North);
-            info.South = tile.HasSide(TileSide.South);
-            info.East = tile.HasSide(TileSide.East);
-            info.West = tile.HasSide(TileSide.West);
+            info.Top = tile.GetSide(TileSide.Top);
+            info.Bottom = tile.GetSide(TileSide.Bottom);
+            info.North = tile.GetSide(TileSide.North);
+            info.South = tile.GetSide(TileSide.South);
+            info.East = tile.GetSide(TileSide.East);
+            info.West = tile.GetSide(TileSide.West);
             this.tiles.Add(info);
         }
     }
@@ -61,10 +61,10 @@ public class TileInfo
 {
     public int X;
     public int Y;
-    public bool Top;
-    public bool Bottom;
-    public bool North;
-    public bool East;
-    public bool South;
-    public bool West;
+    public WallType Top;
+    public WallType Bottom;
+    public WallType North;
+    public WallType East;
+    public WallType South;
+    public WallType West;
 }
