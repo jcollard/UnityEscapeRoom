@@ -15,13 +15,14 @@ public class TileControllerEditor : Editor
         TileController tileRenderer = (TileController)target;
         
         tileRenderer.WallTexture = (Material)EditorGUILayout.ObjectField("Wall Texture", tileRenderer.WallTexture, typeof(Material), false);
+        tileRenderer.DoorTexture = (Material)EditorGUILayout.ObjectField("Door Texture", tileRenderer.DoorTexture, typeof(Material), false);
+
         tileRenderer.BottomTexture = (Material)EditorGUILayout.ObjectField("Bottom Texture", tileRenderer.BottomTexture, typeof(Material), false);
         tileRenderer.TopTexture = (Material)EditorGUILayout.ObjectField("Top Texture", tileRenderer.TopTexture, typeof(Material), false);
 
         foreach (TileSide side in TileUtils.ALL)
         {
-            //tileRenderer.SetSide(side, (WallType)EditorGUILayout.EnumPopup("Wall Type", tileRenderer.GetSide(side)));
-            EditorGUILayout.EnumPopup(TileUtils.LABEL[side], tileRenderer.GetSide(side));
+            tileRenderer.SetSide(side, (WallType)EditorGUILayout.EnumPopup(TileUtils.LABEL[side], tileRenderer.GetSide(side)));
         }
         
         

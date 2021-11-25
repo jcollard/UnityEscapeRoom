@@ -73,16 +73,6 @@ public class MapBuilderController : MonoBehaviour
         RotationLookup[TileSide.West] = Quaternion.Euler(0, 270, 0);
     }
 
-    public void Start()
-    {
-        UpdatePosition();
-    }
-
-    public void Update()
-    {
-        
-    }
-
     public void MoveForward() => this.Move(MoveLookup[this.Facing]);
     public void MoveLeft() => this.FlipMove(StrafeLookup[this.Facing]);
     public void MoveRight() => this.Move(StrafeLookup[this.Facing]);

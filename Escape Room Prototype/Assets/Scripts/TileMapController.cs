@@ -11,6 +11,14 @@ public class TileMapController : MonoBehaviour
     public Transform Container;
 
     [SerializeField]
+    private Material _DoorTexture;
+    public Material DoorTexture
+    {
+        get => _DoorTexture;
+        set => this.UpdateIfDifferent(value, ref _DoorTexture);
+    }
+
+    [SerializeField]
     private Material _WallTexture;
     public Material WallTexture
     {
@@ -88,6 +96,7 @@ public class TileMapController : MonoBehaviour
             tile.WallTexture = this.WallTexture;
             tile.TopTexture = this.TopTexture;
             tile.BottomTexture = this.BottomTexture;
+            tile.DoorTexture = this.DoorTexture;
             tile.gameObject.SetActive(true);
             tile.name = $"(x: {pos.x}, y: {pos.y})";
             tile.transform.parent = this.Container;

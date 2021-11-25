@@ -110,7 +110,8 @@ public class PlayerController : MonoBehaviour
     public void Move((int x, int y) offset)
     {
         TileSide side = this.FindSide(offset);
-        if (this.TileMap.Map.GetTile(this.Position).HasSide(side))
+        ITile tile = this.TileMap.Map.GetTile(this.Position);
+        if (tile.HasSide(side) && tile.GetSide(side) == WallType.Wall)
         {
             // TODO: Queue "hitting wall"
             Debug.Log("Bounce!");

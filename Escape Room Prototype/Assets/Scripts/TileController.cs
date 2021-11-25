@@ -54,6 +54,24 @@ public class TileController : MonoBehaviour, ITile
     }
 
     [SerializeField]
+    private Material _DoorTexture;
+    public Material DoorTexture
+    {
+        get => _DoorTexture;
+        set
+        {
+            _DoorTexture = value;
+            foreach (TileSide side in TileUtils.WALLS)
+            {
+                if (this.GetSide(side) == WallType.Door)
+                {
+                    MeshRenderers[side].material = _DoorTexture;
+                }
+            }
+        }
+    }
+
+    [SerializeField]
     private Material _BottomTexture;
     public Material BottomTexture
     {
@@ -122,10 +140,27 @@ public class TileController : MonoBehaviour, ITile
         }
         // TODO: Else determine which object to render.
         this.MeshRenderers[side].gameObject.SetActive(true);
+        if (side == TileSide.Top || side == TileSide.Bottom)
+        {
+            return;
+        }
+        
+        this.MeshRenderers[side].material = this.GetMaterial(wallType);
+        Debug.Log("Updated material?");
+
     }
 
     public WallType GetSide(TileSide side)
     {
         return this.WallTypes[side];
+    }
+
+    private Material GetMaterial(WallType type)
+    {
+        return type switch {
+            WallType.Wall => this.WallTexture,
+            WallType.Door => this.DoorTexture,
+            _ => throw new Exception($"Illegal WallType.")
+        };
     }
 }

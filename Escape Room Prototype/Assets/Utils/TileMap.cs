@@ -195,7 +195,7 @@ namespace CaptainCoder.TileBuilder
                     {
                         textMap[left + 2, top] = ' ';
                     }
-                    
+
 
                     textMap[left, top + 2] = '*';
                     // If both the tile to the left of this and the current
@@ -237,26 +237,10 @@ namespace CaptainCoder.TileBuilder
 
                     // Center
                     textMap[left + 1, top + 1] = '.';
-
-                    if (tile.HasSide(TileSide.East))
-                    {
-                        textMap[left + 2, top + 1] = '|';
-                    }
-
-                    if (tile.HasSide(TileSide.West))
-                    {
-                        textMap[left, top + 1] = '|';
-                    }
-
-                    if (tile.HasSide(TileSide.North))
-                    {
-                        textMap[left + 1, top] = '-';
-                    }
-
-                    if (tile.HasSide(TileSide.South))
-                    {
-                        textMap[left + 1, top + 2] = '-';
-                    }
+                    textMap[left + 2, top + 1] = this.GetCharRep(tile, TileSide.East);
+                    textMap[left, top + 1] = this.GetCharRep(tile, TileSide.West);
+                    textMap[left + 1, top] = this.GetCharRep(tile, TileSide.North);
+                    textMap[left + 1, top + 2] = this.GetCharRep(tile, TileSide.South);
 
                 }
             }
@@ -286,6 +270,35 @@ namespace CaptainCoder.TileBuilder
 
             return builder.ToString();
         }
+
+        public char GetCharRep(ITile tile, TileSide facing)
+        {
+            WallType type = tile.GetSide(facing);
+            return type switch {
+                WallType.None => ' ',
+                WallType.Door => '+',
+                WallType.Wall => this.GetWallChar(facing)
+            };
+            throw new Exception("Error in GetCharRep.");
+        }
+
+        public char GetDoorChar(TileSide facing)
+        {
+            return '+';
+        }
+
+        public char GetWallChar(TileSide facing)
+        {
+            switch(facing){
+                case TileSide.North:
+                case TileSide.South:
+                    return '-';
+                case TileSide.East:
+                case TileSide.West:
+                    return '|';
+            }
+            throw new Exception($"Illegal WallChar facing: {facing}");
+        }
     }
 
     public enum WallType
@@ -293,7 +306,7 @@ namespace CaptainCoder.TileBuilder
         None,
         Wall,
         Door
-        
+
     }
 
     public interface ITile
