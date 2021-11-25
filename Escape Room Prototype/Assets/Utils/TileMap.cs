@@ -109,10 +109,10 @@ namespace CaptainCoder.TileBuilder
 
         public string ToStringMap(int cursorX = 0, int cursorY = 0, TileSide facing = TileSide.Top)
         {
-            int minX = int.MaxValue;
-            int minY = int.MaxValue;
-            int maxX = int.MinValue;
-            int maxY = int.MinValue;
+            int minX = cursorX;
+            int minY = cursorY;
+            int maxX = cursorX;
+            int maxY = cursorY;
             foreach ((int x, int y) pos in this.tiles.Keys)
             {
                 minX = Math.Min(minX, pos.x);
