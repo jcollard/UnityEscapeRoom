@@ -27,14 +27,14 @@ public class TileMapJSON
         }
     }
 
-    public TileMap ToTileMap(Func<char, ITileObject> Lookup)
+    public TileMap ToTileMap(Func<((int x, int y), char), ITileObject> Lookup)
     {
         TileMap map = new TileMap();
         foreach (TileInfo info in this.tiles)
         {
             (int, int) pos = (info.X, info.Y);
             ITile tile = map.InitTileAt(pos);
-            tile.Object = Lookup(info.ObjectChar);
+            tile.Object = Lookup((pos, info.ObjectChar));
             map.SetWall(pos, TileSide.North, info.North);
             map.SetWall(pos, TileSide.South, info.South);
             map.SetWall(pos, TileSide.East, info.East);

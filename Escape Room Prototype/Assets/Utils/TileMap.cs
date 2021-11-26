@@ -314,6 +314,7 @@ namespace CaptainCoder.TileBuilder
 
     public interface ITileObject
     {
+        (int x, int y) Position { get; set; }
         char TextChar { get; }
         void Interact();
     }
@@ -343,7 +344,6 @@ namespace CaptainCoder.TileBuilder
         }
 
         public bool HasObject { get => this.Object != null; }
-
         public ITileObject Object { get; set; }
 
         public char TextChar { get => this.HasObject ? this.Object.TextChar : '.'; }

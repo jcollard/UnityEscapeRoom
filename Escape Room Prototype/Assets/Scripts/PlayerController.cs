@@ -6,6 +6,7 @@ using CaptainCoder.TileBuilder;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController INSTANCE;
 
     public TileMapController TileMap;
     public Camera MainCamera;
@@ -129,6 +130,7 @@ public class PlayerController : MonoBehaviour
 
     public void Start()
     {
+        PlayerController.INSTANCE = this;
         SetPosition();
     }
 
@@ -148,6 +150,17 @@ public class PlayerController : MonoBehaviour
             return;
         }
         this.Position = (this.Position.x + offset.x, this.Position.y + offset.y);
+    }
+
+    public void Interact()
+    {
+        Debug.Log("Interact!");
+        ITile tile = this.TileMap.Map.GetTile(this.Position);
+        if (tile.HasObject)
+        {
+            Debug.Log("HasObject");
+            tile.Object.Interact();
+        }
     }
 
     private TileSide FindSide((int, int) toCheck)
@@ -213,6 +226,7 @@ public class PlayerController : MonoBehaviour
         controls["Backward"] = this.MoveBackward;
         controls["StrafeRight"] = this.MoveRight;
         controls["LookDown"] = () => this.LookDown = !this.LookDown;
+        controls["Interact"] = this.Interact;
 
     }
 

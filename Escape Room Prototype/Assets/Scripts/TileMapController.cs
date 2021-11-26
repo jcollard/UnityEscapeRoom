@@ -77,11 +77,13 @@ public class TileMapController : MonoBehaviour
         }
     }
 
-    private ITileObject LookupObject(char c)
+    private ITileObject LookupObject(((int, int) pos, char c) info)
     {
-        if (ObjectLookup.Lookup.TryGetValue(c, out GameObject obj))
+        if (ObjectLookup.Lookup.TryGetValue(info.c, out GameObject obj))
         {
-            return obj.GetComponent<ITileObject>();
+            ITileObject tileObject = obj.GetComponent<ITileObject>();
+            tileObject.Position = info.pos;
+            return tileObject;
         }
         return null;
     }
@@ -111,8 +113,8 @@ public class TileMapController : MonoBehaviour
 
         tile.Object = tile.TextChar switch
         {
-            '.' => this.ObjectLookup.Lookup['8'].GetComponent<ITileObject>(),
-            '8' => this.ObjectLookup.Lookup['m'].GetComponent<ITileObject>(),
+            '.' => this.LookupObject((pos, '8')),
+            '8' => this.LookupObject((pos, 'm')),
             _ => null,
         };
 
@@ -138,8 +140,11 @@ public class TileMapController : MonoBehaviour
             if (tile.HasObject)
             {
                 GameObject obj = UnityEngine.Object.Instantiate(this.ObjectLookup.Lookup[tile.Object.TextChar]);
+                ITileObject tileObj = obj.GetComponent<ITileObject>();
+                tileObj.Position = pos;
                 obj.transform.parent = tile.transform;
                 obj.transform.localPosition = new Vector3();
+                tile.Object.Position = pos;
             }
 
         }

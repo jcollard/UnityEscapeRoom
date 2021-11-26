@@ -41,6 +41,18 @@ public class ChestController : MonoBehaviour, ITileObject
 
     public char TextChar => 'm';
 
+    [SerializeField]
+    public int X, Y;
+    
+    public (int x, int y) Position 
+    {
+        get => (X, Y); 
+        set { 
+            X = value.x;
+            Y = value.y;
+        }
+    }
+
     private float StartTime = -1f;
     private float EndTime = -1f;
 
@@ -74,6 +86,10 @@ public class ChestController : MonoBehaviour, ITileObject
 
     public void Open()
     {
+        if (PlayerController.INSTANCE.Position != this.Position)
+        {
+            return;
+        }
         if (!this.IsOpen)
         {
             this.StartTime = Time.time;
