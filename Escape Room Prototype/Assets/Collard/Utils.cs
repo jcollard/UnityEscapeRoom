@@ -19,6 +19,28 @@ namespace Collard
             reader.Close();
         }
 
+        public static IEnumerable<(K, V)> GetKeyValueEnumerable<K, V>(Dictionary<K, V> dict)
+        {
+            foreach (K key in dict.Keys)
+            {
+                yield return (key, dict[key]);
+            }
+        }
+
+        public static Dictionary<K, V> ToDict<K, V>(IEnumerable<(K, V)> data)
+        {
+            Dictionary<K, V> d = new Dictionary<K, V>();
+            if (data == null)
+            {
+                return d;
+            }
+            foreach ((K key, V value) in data)
+            {
+                d[key] = value;
+            }
+            return d;
+        }
+
         public static IEnumerable<(int, T)> GetIndexEnumerable<T>(T[] arr)
         {
             for (int i = 0; i < arr.Length; i++)

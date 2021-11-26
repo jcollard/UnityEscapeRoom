@@ -274,7 +274,8 @@ namespace CaptainCoder.TileBuilder
         public char GetCharRep(ITile tile, TileSide facing)
         {
             WallType type = tile.GetSide(facing);
-            return type switch {
+            return type switch
+            {
                 WallType.None => ' ',
                 WallType.Door => '+',
                 WallType.Wall => this.GetWallChar(facing),
@@ -290,7 +291,8 @@ namespace CaptainCoder.TileBuilder
 
         public char GetWallChar(TileSide facing)
         {
-            switch(facing){
+            switch (facing)
+            {
                 case TileSide.North:
                 case TileSide.South:
                     return '-';
@@ -310,10 +312,20 @@ namespace CaptainCoder.TileBuilder
 
     }
 
+    public interface ITileObject
+    {
+        char TextChar { get; }
+        void Interact();
+    }
+
     public interface ITile
     {
         bool HasSide(TileSide side);
         WallType GetSide(TileSide side);
+        bool HasObject { get; }
+        ITileObject Object { get; set; }
+        void RemoveObject();
+        char TextChar { get; }
         void SetSide(TileSide side, WallType isWall);
     }
 
@@ -330,6 +342,12 @@ namespace CaptainCoder.TileBuilder
             }
         }
 
+        public bool HasObject { get => this.Object != null; }
+
+        public ITileObject Object { get; set; }
+
+        public char TextChar { get => this.HasObject ? this.Object.TextChar : '.'; }
+
         public WallType GetSide(TileSide side)
         {
             return this.WallType[side];
@@ -340,10 +358,17 @@ namespace CaptainCoder.TileBuilder
             return this.WallType.ContainsKey(side) && this.WallType[side] != TileBuilder.WallType.None;
         }
 
+        public void RemoveObject()
+        {
+            this.Object = null;
+        }
+
+
         public void SetSide(TileSide side, WallType wallType)
         {
             this.WallType[side] = wallType;
         }
+
     }
 
 }

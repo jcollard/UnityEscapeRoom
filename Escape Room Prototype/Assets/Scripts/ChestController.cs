@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CaptainCoder.TileBuilder;
 
-public class ChestController : MonoBehaviour
+public class ChestController : MonoBehaviour, ITileObject
 {
 
     private Transform Lid
@@ -37,6 +38,8 @@ public class ChestController : MonoBehaviour
             Set();
         }
     }
+
+    public char TextChar => 'm';
 
     private float StartTime = -1f;
     private float EndTime = -1f;
@@ -78,6 +81,8 @@ public class ChestController : MonoBehaviour
         }
     }
 
-
-
+    public void Interact()
+    {
+        this.Open();
+    }
 }

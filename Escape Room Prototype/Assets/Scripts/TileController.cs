@@ -7,6 +7,12 @@ using CaptainCoder.TileBuilder;
 public class TileController : MonoBehaviour, ITile
 {
 
+    private ITile _DelegateTile;
+    private ITile DelegateTile
+    {
+        get => _DelegateTile == null ? InitDelegateTile() : _DelegateTile;
+    }
+
     [SerializeField] // TODO: Should I clear this out?
     private Dictionary<TileSide, MeshRenderer> _tileRenderers;
 
@@ -96,6 +102,12 @@ public class TileController : MonoBehaviour, ITile
         }
     }
 
+    public bool HasObject => DelegateTile.HasObject;
+    public ITileObject Object { get => DelegateTile.Object; set => DelegateTile.Object = value; }
+    public char TextChar => DelegateTile.TextChar;
+    public void RemoveObject() => DelegateTile.RemoveObject();
+
+    private ITile InitDelegateTile() => new BasicTile();
     private Dictionary<TileSide, MeshRenderer> InitRenderers()
     {
         Dictionary<TileSide, MeshRenderer> renderers = new Dictionary<TileSide, MeshRenderer>();
@@ -125,10 +137,8 @@ public class TileController : MonoBehaviour, ITile
         return types;
     }
 
-    public bool HasSide(TileSide side)
-    {
-        return this.MeshRenderers[side].gameObject.activeInHierarchy;
-    }
+    public bool HasSide(TileSide side) => this.MeshRenderers[side].gameObject.activeInHierarchy;
+
 
     public void SetSide(TileSide side, WallType wallType)
     {
@@ -144,23 +154,22 @@ public class TileController : MonoBehaviour, ITile
         {
             return;
         }
-        
+
         this.MeshRenderers[side].material = this.GetMaterial(wallType);
-        Debug.Log("Updated material?");
-
     }
 
-    public WallType GetSide(TileSide side)
-    {
-        return this.WallTypes[side];
-    }
+    public WallType GetSide(TileSide side) => this.WallTypes[side];
+
 
     private Material GetMaterial(WallType type)
     {
-        return type switch {
+        return type switch
+        {
             WallType.Wall => this.WallTexture,
             WallType.Door => this.DoorTexture,
             _ => throw new Exception($"Illegal WallType.")
         };
     }
+
+    
 }

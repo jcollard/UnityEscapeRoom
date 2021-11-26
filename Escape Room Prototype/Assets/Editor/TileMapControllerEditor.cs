@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using CaptainCoder.TileBuilder;
+using System.Collections.Generic;
 
 [CustomEditor(typeof(TileMapController))]
 public class TileMapControllerEditor : Editor
@@ -20,6 +21,13 @@ public class TileMapControllerEditor : Editor
         controller.DoorTexture = (Material)EditorGUILayout.ObjectField("Door Texture", controller.DoorTexture, typeof(Material), false);
         controller.TopTexture = (Material)EditorGUILayout.ObjectField("Top Texture", controller.TopTexture, typeof(Material), false);
         controller.BottomTexture = (Material)EditorGUILayout.ObjectField("Bottom Texture", controller.BottomTexture, typeof(Material), false);
+
+        Dictionary<char, GameObject> objects = controller.ObjectLookup.Lookup;
+        foreach (char key in new List<char>(objects.Keys))
+        {
+            objects[key] = (GameObject)EditorGUILayout.ObjectField($"{key}", objects[key], typeof(GameObject), true);
+        }
+        controller.ObjectLookup = new ObjectLookupMap(objects); 
 
         if(GUILayout.Button("Rebuild Map"))
         {

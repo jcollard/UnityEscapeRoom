@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CaptainCoder.TileBuilder;
 
-public class BarellController : MonoBehaviour
+public class BarellController : MonoBehaviour, ITileObject
 {
+    public char TextChar => '8';
 
     private MeshExploder MeshExploder
     {
@@ -14,5 +16,10 @@ public class BarellController : MonoBehaviour
     {
         GameObject rv = this.MeshExploder.Explode();
         MeshExploder.gameObject.SetActive(false);
+    }
+
+    public void Interact()
+    {
+        this.Explode();
     }
 }

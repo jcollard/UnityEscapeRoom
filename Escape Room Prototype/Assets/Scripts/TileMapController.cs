@@ -76,6 +76,9 @@ public class TileMapController : MonoBehaviour
         }
     }
 
+    [SerializeField]
+    public ObjectLookupMap ObjectLookup = new ObjectLookupMap();
+
     private TileController CreateTile(ITile tile)
     {
         TileController newTile = UnityEngine.Object.Instantiate<TileController>(TileTemplate);
@@ -104,4 +107,59 @@ public class TileMapController : MonoBehaviour
         }
         this.JSON = new TileMapJSON(this.Map);
     }
+}
+
+[Serializable]
+public class ObjectLookupMap
+{
+    public List<ObjectLookup> Objects = new List<ObjectLookup>();
+    public Dictionary<char, GameObject> Lookup 
+    {
+        get
+        {
+            Dictionary<char, GameObject> dict = new Dictionary<char, GameObject>();
+            foreach (ObjectLookup obj in Objects)
+            {
+                dict[obj.Symbol] = obj.Template;
+            }
+
+            // TODO: Objects should register on ObjectLookupMap
+
+            if (!dict.ContainsKey('8'))
+            {
+                dict['8'] = null;
+            }
+
+            if (!dict.ContainsKey('m'))
+            {
+                dict['m'] = null;
+            }
+
+            return dict;
+        }
+    }
+
+    public ObjectLookupMap() {}
+    public ObjectLookupMap(Dictionary<char, GameObject> map) 
+    {
+        foreach (char key in map.Keys)
+        {
+            Objects.Add(new ObjectLookup(key, map[key]));
+        }
+    }
+
+}
+
+[Serializable]
+public class ObjectLookup
+{
+    public char Symbol;
+    public GameObject Template;
+
+    public ObjectLookup(char Symbol, GameObject Template)
+    {
+        this.Symbol = Symbol;
+        this.Template = Template;
+    }
+
 }

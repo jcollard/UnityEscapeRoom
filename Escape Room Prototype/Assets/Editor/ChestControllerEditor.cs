@@ -17,9 +17,6 @@ public class ChestControllerEditor : Editor
         controller.IsOpen = EditorGUILayout.Toggle("Open", controller.IsOpen);
         controller.OpenSpeed = EditorGUILayout.FloatField("Open Speed", controller.OpenSpeed);
 
-
-        
-
         if (EditorGUI.EndChangeCheck())
         {
             // This code will unsave the current scene if there's any change in the editor GUI.
