@@ -148,7 +148,6 @@ public class PlayerController : MonoBehaviour
             return;
         }
         this.Position = (this.Position.x + offset.x, this.Position.y + offset.y);
-        // TODO: Queue animation
     }
 
     private TileSide FindSide((int, int) toCheck)
