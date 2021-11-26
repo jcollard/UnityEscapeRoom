@@ -8,9 +8,10 @@ public class TileController : MonoBehaviour, ITile
 {
 
     private ITile _DelegateTile;
-    private ITile DelegateTile
+    public ITile DelegateTile
     {
         get => _DelegateTile == null ? InitDelegateTile() : _DelegateTile;
+        set => _DelegateTile = value;
     }
 
     [SerializeField] // TODO: Should I clear this out?

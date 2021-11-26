@@ -76,6 +76,16 @@ public class MapBuilderControllerEditor : Editor
         }
         GUILayout.EndHorizontal();
 
+        if (GUILayout.Button("Object"))
+        {
+            controller.TileMapController.ToggleObject(controller.Position);
+            // TODO (jcollard 11/23/2021): We probably shouldn't rebuild the entire map.
+            // It would be useful to have BuildTiles take in a range to rebuild. 
+            // This requires caching the locations of each TileController so we can either
+            // just delete those OR update them directly.
+            controller.TileMapController.BuildTiles();
+        }
+
         if (GUILayout.Button("Wall"))
         {
             controller.TileMapController.Map.ToggleWall(controller.Position, controller.Facing);

@@ -16,6 +16,7 @@ public class TileMapJSON
             info.X = x;
             info.Y = y;
             ITile tile = map.GetTile((x, y));
+            info.ObjectChar = tile.TextChar; 
             info.Top = tile.GetSide(TileSide.Top);
             info.Bottom = tile.GetSide(TileSide.Bottom);
             info.North = tile.GetSide(TileSide.North);
@@ -26,19 +27,21 @@ public class TileMapJSON
         }
     }
 
-    public TileMap ToTileMap()
+    public TileMap ToTileMap(Func<char, ITileObject> Lookup)
     {
         TileMap map = new TileMap();
         foreach (TileInfo info in this.tiles)
         {
             (int, int) pos = (info.X, info.Y);
-            map.InitTileAt(pos);
+            ITile tile = map.InitTileAt(pos);
+            tile.Object = Lookup(info.ObjectChar);
             map.SetWall(pos, TileSide.North, info.North);
             map.SetWall(pos, TileSide.South, info.South);
             map.SetWall(pos, TileSide.East, info.East);
             map.SetWall(pos, TileSide.West, info.West);
             map.SetWall(pos, TileSide.Top, info.Top);
             map.SetWall(pos, TileSide.Bottom, info.Bottom);
+
         }
         return map;
     }
@@ -67,4 +70,5 @@ public class TileInfo
     public WallType East;
     public WallType South;
     public WallType West;
+    public char ObjectChar;
 }

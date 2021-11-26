@@ -7,6 +7,7 @@ using CaptainCoder.TileBuilder;
 public class TileMapController : MonoBehaviour
 {
 
+
     public TileController TileTemplate;
     public Transform Container;
 
@@ -41,7 +42,7 @@ public class TileMapController : MonoBehaviour
         get => _BottomTexture;
         set => this.UpdateIfDifferent(value, ref _BottomTexture);
     }
-    
+
     private void UpdateIfDifferent<T>(T value, ref T any)
     {
         if (value == null || any == null || value.Equals(any))
@@ -53,13 +54,13 @@ public class TileMapController : MonoBehaviour
     }
 
     [SerializeField]
-    private TileMapJSON _JSON; 
-    public TileMapJSON JSON 
+    private TileMapJSON _JSON;
+    public TileMapJSON JSON
     {
-        get => _JSON; 
+        get => _JSON;
         private set
         {
-            this._JSON = value;        
+            this._JSON = value;
         }
     }
 
@@ -70,10 +71,19 @@ public class TileMapController : MonoBehaviour
         {
             if (this._Map == null || this._Map.IsEmpty)
             {
-                this._Map = this.JSON.ToTileMap();
+                this._Map = this.JSON.ToTileMap(this.LookupObject);
             }
             return this._Map;
         }
+    }
+
+    private ITileObject LookupObject(char c)
+    {
+        if (ObjectLookup.Lookup.TryGetValue(c, out GameObject obj))
+        {
+            return obj.GetComponent<ITileObject>();
+        }
+        return null;
     }
 
     [SerializeField]
@@ -82,11 +92,31 @@ public class TileMapController : MonoBehaviour
     private TileController CreateTile(ITile tile)
     {
         TileController newTile = UnityEngine.Object.Instantiate<TileController>(TileTemplate);
+        newTile.DelegateTile = tile;
         foreach (TileSide side in TileUtils.ALL)
         {
             newTile.SetSide(side, tile.HasSide(side) ? tile.GetSide(side) : WallType.None);
         }
         return newTile;
+    }
+
+    public void ToggleObject((int x, int y) pos)
+    {
+        if (!Map.HasTile(pos))
+        {
+            return;
+        }
+
+        ITile tile = Map.GetTile(pos);
+
+        tile.Object = tile.TextChar switch
+        {
+            '.' => this.ObjectLookup.Lookup['8'].GetComponent<ITileObject>(),
+            '8' => this.ObjectLookup.Lookup['m'].GetComponent<ITileObject>(),
+            _ => null,
+        };
+
+        this.BuildTiles();
     }
 
     public void BuildTiles()
@@ -104,6 +134,14 @@ public class TileMapController : MonoBehaviour
             tile.name = $"(x: {pos.x}, y: {pos.y})";
             tile.transform.parent = this.Container;
             tile.transform.localPosition = new Vector3((float)(pos.x * 10), 0, (float)(pos.y * 10));
+
+            if (tile.HasObject)
+            {
+                GameObject obj = UnityEngine.Object.Instantiate(this.ObjectLookup.Lookup[tile.Object.TextChar]);
+                obj.transform.parent = tile.transform;
+                obj.transform.localPosition = new Vector3();
+            }
+
         }
         this.JSON = new TileMapJSON(this.Map);
     }
@@ -113,7 +151,7 @@ public class TileMapController : MonoBehaviour
 public class ObjectLookupMap
 {
     public List<ObjectLookup> Objects = new List<ObjectLookup>();
-    public Dictionary<char, GameObject> Lookup 
+    public Dictionary<char, GameObject> Lookup
     {
         get
         {
@@ -139,8 +177,8 @@ public class ObjectLookupMap
         }
     }
 
-    public ObjectLookupMap() {}
-    public ObjectLookupMap(Dictionary<char, GameObject> map) 
+    public ObjectLookupMap() { }
+    public ObjectLookupMap(Dictionary<char, GameObject> map)
     {
         foreach (char key in map.Keys)
         {

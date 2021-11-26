@@ -236,7 +236,7 @@ namespace CaptainCoder.TileBuilder
                     }
 
                     // Center
-                    textMap[left + 1, top + 1] = '.';
+                    textMap[left + 1, top + 1] = tile.TextChar;
                     textMap[left + 2, top + 1] = this.GetCharRep(tile, TileSide.East);
                     textMap[left, top + 1] = this.GetCharRep(tile, TileSide.West);
                     textMap[left + 1, top] = this.GetCharRep(tile, TileSide.North);
