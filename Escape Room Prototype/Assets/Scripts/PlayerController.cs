@@ -154,12 +154,10 @@ public class PlayerController : MonoBehaviour
 
     public void Interact()
     {
-        Debug.Log("Interact!");
         ITile tile = this.TileMap.Map.GetTile(this.Position);
         if (tile.HasObject)
         {
-            Debug.Log("HasObject");
-            tile.Object.Interact();
+            tile.Interact();
         }
     }
 

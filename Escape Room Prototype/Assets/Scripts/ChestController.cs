@@ -101,4 +101,16 @@ public class ChestController : MonoBehaviour, ITileObject
     {
         this.Open();
     }
+
+    public ITileObject Spawn(ITile parent)
+    {
+        TileController tile = (TileController)parent;
+        GameObject obj = UnityEngine.Object.Instantiate(this.gameObject);
+        obj.SetActive(true);
+        ITileObject tileObj = obj.GetComponent<ITileObject>();
+        tileObj.Position = parent.Position;
+        obj.transform.parent = tile.transform;
+        obj.transform.localPosition = new Vector3(); 
+        return tileObj;
+    }
 }

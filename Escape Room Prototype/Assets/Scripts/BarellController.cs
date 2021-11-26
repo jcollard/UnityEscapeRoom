@@ -8,11 +8,12 @@ public class BarellController : MonoBehaviour, ITileObject
     public char TextChar => '8';
 
     public int X, Y;
-    
-    public (int x, int y) Position 
+
+    public (int x, int y) Position
     {
-        get => (X, Y); 
-        set { 
+        get => (X, Y);
+        set
+        {
             X = value.x;
             Y = value.y;
         }
@@ -22,13 +23,11 @@ public class BarellController : MonoBehaviour, ITileObject
     {
         get => this.transform.Find("Mesh").GetComponent<MeshExploder>();
     }
-    
+
     public void Explode()
     {
-        Debug.Log("Explode Barrel?");
         if (PlayerController.INSTANCE.Position != this.Position)
         {
-            Debug.Log($"Player: {PlayerController.INSTANCE.Position}, Barrel: {this.Position}");
             return;
         }
         GameObject rv = this.MeshExploder.Explode();
@@ -37,7 +36,20 @@ public class BarellController : MonoBehaviour, ITileObject
 
     public void Interact()
     {
-        Debug.Log("In Barrel Interact");
         this.Explode();
+    }
+
+    public ITileObject Spawn(ITile parent)
+    {
+        TileController tile = (TileController)parent;
+        GameObject obj = UnityEngine.Object.Instantiate(this.gameObject);
+        obj.SetActive(true);
+        obj.transform.Find("Mesh").gameObject.SetActive(true);
+
+        ITileObject tileObj = obj.GetComponent<ITileObject>();
+        tileObj.Position = parent.Position;
+        obj.transform.parent = tile.transform;
+        obj.transform.localPosition = new Vector3();
+        return tileObj;
     }
 }

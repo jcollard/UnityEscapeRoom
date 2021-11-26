@@ -38,7 +38,7 @@ namespace CaptainCoder.TileBuilder
                 return tile;
             }
 
-            ITile newTile = new BasicTile();
+            ITile newTile = new BasicTile(pos);
 
             // If neighbors exist on any side, copy the wall configuration.
             foreach (TileSide mySide in TileUtils.WALLS)
@@ -317,10 +317,13 @@ namespace CaptainCoder.TileBuilder
         (int x, int y) Position { get; set; }
         char TextChar { get; }
         void Interact();
+        ITileObject Spawn(ITile parent);
     }
 
     public interface ITile
     {
+        (int x, int y) Position {get; }
+        ITileObject Spawned {get; set;}
         bool HasSide(TileSide side);
         WallType GetSide(TileSide side);
         bool HasObject { get; }
@@ -328,15 +331,21 @@ namespace CaptainCoder.TileBuilder
         void RemoveObject();
         char TextChar { get; }
         void SetSide(TileSide side, WallType isWall);
+        void Interact();
+        void SpawnObject();
     }
 
     [Serializable]
     internal class BasicTile : ITile
     {
+        public ITileObject Spawned {get; set;}
+        public (int x, int y) Position {get; private set;}
+
         private readonly Dictionary<TileSide, WallType> WallType = new Dictionary<TileSide, WallType>();
 
-        public BasicTile()
+        public BasicTile((int x, int y) pos)
         {
+            this.Position = pos;
             foreach (TileSide side in TileUtils.ALL)
             {
                 WallType[side] = TileBuilder.WallType.Wall;
@@ -358,6 +367,14 @@ namespace CaptainCoder.TileBuilder
             return this.WallType.ContainsKey(side) && this.WallType[side] != TileBuilder.WallType.None;
         }
 
+        public void Interact()
+        {
+            if (this.HasObject)
+            {
+                this.Spawned.Interact();
+            }
+        }
+
         public void RemoveObject()
         {
             this.Object = null;
@@ -369,6 +386,10 @@ namespace CaptainCoder.TileBuilder
             this.WallType[side] = wallType;
         }
 
+        public void SpawnObject()
+        {
+            // Do nothing
+        }
     }
 
 }

@@ -7,6 +7,7 @@ using CaptainCoder.TileBuilder;
 public class TileController : MonoBehaviour, ITile
 {
 
+    public (int x, int y) Position {get; set;}
     private ITile _DelegateTile;
     public ITile DelegateTile
     {
@@ -108,7 +109,10 @@ public class TileController : MonoBehaviour, ITile
     public char TextChar => DelegateTile.TextChar;
     public void RemoveObject() => DelegateTile.RemoveObject();
 
-    private ITile InitDelegateTile() => new BasicTile();
+    public ITileObject Spawned {get; set;}
+    
+
+    private ITile InitDelegateTile() => new BasicTile(this.Position);
     private Dictionary<TileSide, MeshRenderer> InitRenderers()
     {
         Dictionary<TileSide, MeshRenderer> renderers = new Dictionary<TileSide, MeshRenderer>();
@@ -172,5 +176,20 @@ public class TileController : MonoBehaviour, ITile
         };
     }
 
-    
+    public void Interact()
+    {
+        if (this.Spawned != null)
+        {
+            this.Spawned.Interact();
+        }
+    }
+
+    public void SpawnObject()
+    {
+        if (this.HasObject)
+        {
+            this.Spawned = this.Object.Spawn(this);
+            DelegateTile.Spawned = this.Spawned;
+        }    
+    }
 }

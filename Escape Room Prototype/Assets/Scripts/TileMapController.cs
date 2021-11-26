@@ -95,6 +95,7 @@ public class TileMapController : MonoBehaviour
     {
         TileController newTile = UnityEngine.Object.Instantiate<TileController>(TileTemplate);
         newTile.DelegateTile = tile;
+        newTile.Position = tile.Position;
         foreach (TileSide side in TileUtils.ALL)
         {
             newTile.SetSide(side, tile.HasSide(side) ? tile.GetSide(side) : WallType.None);
@@ -136,19 +137,14 @@ public class TileMapController : MonoBehaviour
             tile.name = $"(x: {pos.x}, y: {pos.y})";
             tile.transform.parent = this.Container;
             tile.transform.localPosition = new Vector3((float)(pos.x * 10), 0, (float)(pos.y * 10));
-
-            if (tile.HasObject)
-            {
-                GameObject obj = UnityEngine.Object.Instantiate(this.ObjectLookup.Lookup[tile.Object.TextChar]);
-                ITileObject tileObj = obj.GetComponent<ITileObject>();
-                tileObj.Position = pos;
-                obj.transform.parent = tile.transform;
-                obj.transform.localPosition = new Vector3();
-                tile.Object.Position = pos;
-            }
-
+            tile.SpawnObject();
         }
         this.JSON = new TileMapJSON(this.Map);
+    }
+
+    public void Start()
+    {
+        BuildTiles();
     }
 }
 
